@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.BaseSwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         mRv.setAdapter(mAdapter);
         mAdapter.setData(list);
 
-        mSrl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSrl.setOnRefreshListener(new BaseSwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 Log.i("cuishun", "onRefresh");
