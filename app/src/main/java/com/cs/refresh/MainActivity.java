@@ -7,9 +7,11 @@ import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.cs.refresh.refresh.BaseProgressViewController;
 import com.cs.refresh.refresh.MySwipeRefreshLayout;
+import com.cs.refresh.refresh.RefreshListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,41 +42,41 @@ public class MainActivity extends AppCompatActivity {
 
         mSrl.setRefreshProgressController(new BaseProgressViewController());
 
-//        mSrl.setOnRefreshListener(new BaseSwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                Log.i("cuishun", "onRefresh");
-//                getList(new CallBack() {
-//                    @Override
-//                    public void onCallBack(final List<Integer> list) {
-//                        mUIHandler.post(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mAdapter.setData(list);
-//                                mSrl.setRefreshing(false);
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onLoadMore() {
-//                Log.i("cuishun", "onLoadMore");
-//                getList(new CallBack() {
-//                    @Override
-//                    public void onCallBack(final List<Integer> list) {
-//                        mUIHandler.post(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mAdapter.addData(list);
-//                                mSrl.setLoadingMore(false);
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//        });
+        mSrl.setRefreshListener(new RefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.i("cuishun", "onRefresh");
+                getList(new CallBack() {
+                    @Override
+                    public void onCallBack(final List<Integer> list) {
+                        mUIHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.setData(list);
+                                mSrl.setRefreshing(false);
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            public void onLoadMore() {
+                Log.i("cuishun", "onLoadMore");
+                getList(new CallBack() {
+                    @Override
+                    public void onCallBack(final List<Integer> list) {
+                        mUIHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.addData(list);
+                                mSrl.setLoadingMore(false);
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 
     interface CallBack {

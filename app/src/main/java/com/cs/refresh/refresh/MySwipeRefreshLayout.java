@@ -35,12 +35,15 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     private boolean mIsRefreshing;
     private boolean mIsDragging;
 
+    private RefreshCalculateHelper mCalculateHelper;
+
     public MySwipeRefreshLayout(Context context) {
         this(context, null);
     }
 
     public MySwipeRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     @Override
@@ -52,17 +55,25 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     }
 
     @Override
+    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+        return mIsDragging;
+    }
+
+    @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
-        if(mIsDragging) {
-            int newY = mTranslationY - dy;
-            if((mTranslationY >= 0 && newY <= 0) || (mTranslationY <= 0 && newY >= 0)) {
-                mIsDragging = false;
-                mTranslationY = 0;
-            }
-            mTranslationY = newY;
-            mTarget.setTranslationY(mTranslationY);
-            consumed[1] = dy;
+        if (!mIsDragging) {
+            return;
         }
+        int newY = mTranslationY - dy;
+        if (!mCalculateHelper.isSameSymbol(mTranslationY, newY)) {
+            mIsDragging = false;
+            mTranslationY = 0;
+        } else {
+            mTranslationY = newY;
+        }
+        mTranslationY = mCalculateHelper.ensureTranslationY(mTranslationY);
+        mTarget.setTranslationY(mTranslationY);
+        consumed[1] = dy;
     }
 
     @Override
@@ -74,39 +85,39 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 
-        if(dyUnconsumed < 0 && !canTargetScrollUp()) {
+        boolean isUp = dyUnconsumed < 0 && !canTargetScrollUp();
+        boolean isDown = dyUnconsumed > 0 && !canTargetScrollDown();
+        if (isUp || isDown) {
             mIsDragging = true;
-            mTranslationY += -dyUnconsumed;
-            if (Math.abs(mTranslationY) > 300) {
-                mTranslationY = 300;
-            }
+            mTranslationY = mTranslationY - dyUnconsumed;
+            mTranslationY = mCalculateHelper.ensureTranslationY(mTranslationY);
             mTarget.setTranslationY(mTranslationY);
+        }
+
+        if (isUp) {
+            if (mTranslationY > mCalculateHelper.getDefaultRefreshTrigger()
+                    && mRefreshListener != null && !isRefreshingOrLoadingMore()) {
+                mRefreshListener.onRefresh();
+            }
             return;
         }
 
-        if (dyUnconsumed > 0 && !canTargetScrollDown()) {
-            mIsDragging = true;
-            mTranslationY += -dyUnconsumed;
-            if (Math.abs(mTranslationY) > 300) {
-                mTranslationY = -300;
-            }
-            mTarget.setTranslationY(mTranslationY);
-
-            if (mRefreshListener != null && !mIsLoadingMore) {
+        if (isDown) {
+            if (mRefreshListener != null && !isRefreshingOrLoadingMore()) {
                 mIsLoadingMore = true;
                 mRefreshListener.onLoadMore();
             }
             return;
         }
 
-        if(mTranslationY != 0) {
+        if (mTranslationY != 0) {
             mTranslationY = 0;
             mTarget.setTranslationY(mTranslationY);
         }
     }
 
     @Override
-    public void onStopNestedScroll(View child) {
+    public void onStopNestedScroll(@NonNull View child) {
         super.onStopNestedScroll(child);
         TranslateAnimation anim = new TranslateAnimation(0, 0, mTranslationY, 0);
         anim.setDuration(ANIM_DURATION);
@@ -136,12 +147,24 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
         this.mRefreshListener = listener;
     }
 
+    public void setRefreshing(boolean refreshing) {
+        mIsRefreshing = refreshing;
+    }
+
+    public void setLoadingMore(boolean loadingMore) {
+        mIsLoadingMore = loadingMore;
+    }
+
     public void setTopStyle(int style) {
         this.mTopStyle = style;
     }
 
     public void setBottomStyle(int style) {
         this.mBottomStyle = style;
+    }
+
+    private void init() {
+        mCalculateHelper = new RefreshCalculateHelper(this);
     }
 
     private void layoutTargetList() {
@@ -203,5 +226,9 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
             return ((IRefreshListView) mTarget).canScrollDown();
         }
         return false;
+    }
+
+    private boolean isRefreshingOrLoadingMore() {
+        return mIsRefreshing || mIsLoadingMore;
     }
 }
