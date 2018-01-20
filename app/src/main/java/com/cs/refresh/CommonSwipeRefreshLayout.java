@@ -18,7 +18,6 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
     private static final String TAG = "CommonSwipeRefresh";
 
     private View mTarget;
-    private RefreshListener mListener;
     private boolean mIsLoadingMore;
     private int mTranslationY;
     private CircleImageView mCircleView;
@@ -49,9 +48,6 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
         addView(mCircleView);
     }
 
-    public void setOnRefreshListener(RefreshListener listener) {
-        this.mListener = listener;
-    }
 
     public void setLoadingMore(boolean loadingMore) {
         this.mIsLoadingMore = loadingMore;
@@ -65,7 +61,7 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
 
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        Log.i(TAG, "onMeasure->" + "widthMeasureSpec:"+ widthMeasureSpec + " heightMeasureSpec:" + heightMeasureSpec);
+        Log.i(TAG, "onMeasure->" + "widthMeasureSpec:" + widthMeasureSpec + " heightMeasureSpec:" + heightMeasureSpec);
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleDiameter, MeasureSpec.EXACTLY),
                 MeasureSpec.makeMeasureSpec(mCircleDiameter, MeasureSpec.EXACTLY));
@@ -74,29 +70,32 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
+        setTarget();
+        final int width = getMeasuredWidth();
+        int circleWidth = mCircleView.getMeasuredWidth();
+        int circleHeight = mCircleView.getMeasuredHeight();
+        mCircleView.layout((width / 2 - circleWidth / 2), (int) (mTarget.getBottom() - circleWidth * 1.5f),
+                (width / 2 + circleWidth / 2), (int) (mTarget.getBottom() + circleHeight - circleWidth * 1.5f));
+    }
+
+    private void setTarget() {
         int childCount = getChildCount();
         if (mTarget != null || childCount <= 0) {
             return;
         }
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            if (child instanceof RecyclerView) {
+            if (child instanceof RecyclerView || child instanceof IRefreshListView) {
                 mTarget = child;
             }
         }
-
-        final int width = getMeasuredWidth();
-        int circleWidth = mCircleView.getMeasuredWidth();
-        int circleHeight = mCircleView.getMeasuredHeight();
-        mCircleView.layout((width / 2 - circleWidth / 2), mTarget.getBottom() - 200,
-                (width / 2 + circleWidth / 2), mTarget.getBottom() + circleHeight - 200);
+        if (mTarget == null) {
+            throw new IllegalStateException(this.getClass().getSimpleName() + "的子View必须为RecyclerView或实现IRefreshListView接口的View");
+        }
     }
 
     public boolean canChildScrollDown() {
-        if (mTarget == null) {
-            return false;
-        }
-        return mTarget.canScrollVertically(1);
+        return mTarget != null && mTarget.canScrollVertically(1);
     }
 
     @Override

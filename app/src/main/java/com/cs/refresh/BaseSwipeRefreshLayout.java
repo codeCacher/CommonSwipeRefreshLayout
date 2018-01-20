@@ -103,8 +103,9 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     private static final int DEFAULT_CIRCLE_TARGET = 64;
 
     private View mTarget; // the target of the gesture
-    OnRefreshListener mListener;
+    protected OnRefreshListener mListener;
     boolean mRefreshing = false;
+    boolean mLoadingMore = false;
     private int mTouchSlop;
     private float mTotalDragDistance = -1;
 
@@ -948,7 +949,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     }
 
     private void finishSpinner(float overscrollTop) {
-        if (overscrollTop > mTotalDragDistance) {
+        if (overscrollTop > mTotalDragDistance && !mLoadingMore) {
             setRefreshing(true, true /* notify */);
         } else {
             // cancel refresh
@@ -1174,6 +1175,8 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
          * Called when a swipe gesture triggers a refresh.
          */
         void onRefresh();
+
+        void onLoadMore();
     }
 
     /**

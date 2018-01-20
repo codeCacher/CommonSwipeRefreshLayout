@@ -54,13 +54,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-        });
-
-        mSrl.setOnRefreshListener(new RefreshListener() {
-            @Override
-            public void onRefresh() {
-
-            }
 
             @Override
             public void onLoadMore() {
