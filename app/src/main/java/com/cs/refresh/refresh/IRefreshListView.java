@@ -5,4 +5,7 @@ package com.cs.refresh.refresh;
  */
 
 public interface IRefreshListView {
+    boolean canScrollUp();
+
+    boolean canScrollDown();
 }

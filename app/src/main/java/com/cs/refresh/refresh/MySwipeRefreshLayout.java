@@ -1,18 +1,22 @@
 package com.cs.refresh.refresh;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.TranslateAnimation;
 
 public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingParent,
         NestedScrollingChild {
 
-    private static final int REFRESH_STYPE_INTRUSIVE = 0;
-    private static final int REFRESH_STYPE_NON_INTRUSIVE = 1;
+    public static final int REFRESH_STYPE_INTRUSIVE = 0;
+    public static final int REFRESH_STYPE_NON_INTRUSIVE = 1;
+
+    private static final long ANIM_DURATION = 200;
 
     private View mTarget;
     private IRefreshProgressViewController mProgressController;
@@ -24,6 +28,12 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     private int mBottomStyle;
 
     private int mTranslationY;
+
+    private RefreshListener mRefreshListener;
+
+    private boolean mIsLoadingMore;
+    private boolean mIsRefreshing;
+    private boolean mIsDragging;
 
     public MySwipeRefreshLayout(Context context) {
         this(context, null);
@@ -42,24 +52,68 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     }
 
     @Override
-    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
+        if(mIsDragging) {
+            int newY = mTranslationY - dy;
+            if((mTranslationY >= 0 && newY <= 0) || (mTranslationY <= 0 && newY >= 0)) {
+                mIsDragging = false;
+                mTranslationY = 0;
+            }
+            mTranslationY = newY;
+            mTarget.setTranslationY(mTranslationY);
+            consumed[1] = dy;
+        }
+    }
+
+    @Override
+    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int nestedScrollAxes) {
+        return true;
+    }
+
+    @Override
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 
-        if (dyUnconsumed > 0 && !canTargetScrollDown()) {
+        if(dyUnconsumed < 0 && !canTargetScrollUp()) {
+            mIsDragging = true;
             mTranslationY += -dyUnconsumed;
-//            if (Math.abs(mTranslationY) > DEFAULT_REFRESH_HEIGHT) {
-//                mTranslationY = -DEFAULT_REFRESH_HEIGHT;
-//            }
+            if (Math.abs(mTranslationY) > 300) {
+                mTranslationY = 300;
+            }
             mTarget.setTranslationY(mTranslationY);
-//            mBottomView.setTranslationY(mTranslationY);
-
-//            if (mListener != null && !mIsLoadingMore) {
-//                mIsLoadingMore = true;
-//                mCircleView.setVisibility(VISIBLE);
-//                mProgress.start();
-//                mListener.onLoadMore();
-//            }
+            return;
         }
+
+        if (dyUnconsumed > 0 && !canTargetScrollDown()) {
+            mIsDragging = true;
+            mTranslationY += -dyUnconsumed;
+            if (Math.abs(mTranslationY) > 300) {
+                mTranslationY = -300;
+            }
+            mTarget.setTranslationY(mTranslationY);
+
+            if (mRefreshListener != null && !mIsLoadingMore) {
+                mIsLoadingMore = true;
+                mRefreshListener.onLoadMore();
+            }
+            return;
+        }
+
+        if(mTranslationY != 0) {
+            mTranslationY = 0;
+            mTarget.setTranslationY(mTranslationY);
+        }
+    }
+
+    @Override
+    public void onStopNestedScroll(View child) {
+        super.onStopNestedScroll(child);
+        TranslateAnimation anim = new TranslateAnimation(0, 0, mTranslationY, 0);
+        anim.setDuration(ANIM_DURATION);
+        mTarget.startAnimation(anim);
+        mTarget.setTranslationY(0);
+        mTranslationY = 0;
+        mIsDragging = false;
     }
 
     public void setRefreshProgressController(IRefreshProgressViewController controller) {
@@ -78,6 +132,18 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
         postInvalidate();
     }
 
+    public void setRefreshListener(RefreshListener listener) {
+        this.mRefreshListener = listener;
+    }
+
+    public void setTopStyle(int style) {
+        this.mTopStyle = style;
+    }
+
+    public void setBottomStyle(int style) {
+        this.mBottomStyle = style;
+    }
+
     private void layoutTargetList() {
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
@@ -89,14 +155,14 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     }
 
     private void layoutTopView() {
-        if(mTopView == null) {
+        if (mTopView == null) {
             return;
         }
         mProgressController.layoutTopView(this, mTarget, mTopView);
     }
 
     private void layoutBottomView() {
-        if(mBottomView == null) {
+        if (mBottomView == null) {
             return;
         }
         mProgressController.layoutBottomView(this, mTarget, mBottomView);
@@ -120,10 +186,22 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     }
 
     private boolean canTargetScrollUp() {
+        if (mTarget instanceof RecyclerView) {
+            return mTarget.canScrollVertically(-1);
+        }
+        if (mTarget instanceof IRefreshListView) {
+            return ((IRefreshListView) mTarget).canScrollUp();
+        }
         return false;
     }
 
     private boolean canTargetScrollDown() {
+        if (mTarget instanceof RecyclerView) {
+            return mTarget.canScrollVertically(1);
+        }
+        if (mTarget instanceof IRefreshListView) {
+            return ((IRefreshListView) mTarget).canScrollDown();
+        }
         return false;
     }
 }
