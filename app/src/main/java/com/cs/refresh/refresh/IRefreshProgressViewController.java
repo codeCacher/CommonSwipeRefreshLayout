@@ -11,4 +11,8 @@ public interface IRefreshProgressViewController {
     View createTopProgressView();
 
     View createBottomProgressView();
+
+    void layoutTopView(View parent, View refreshListView, View topView);
+
+    void layoutBottomView(View parent, View refreshListView, View bottomView);
 }

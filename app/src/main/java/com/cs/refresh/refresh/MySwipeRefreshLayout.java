@@ -23,6 +23,8 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     private int mTopStyle;
     private int mBottomStyle;
 
+    private int mTranslationY;
+
     public MySwipeRefreshLayout(Context context) {
         this(context, null);
     }
@@ -35,11 +37,28 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         setTarget();
         layoutTargetList();
-        if (mTopView != null) {
-            layoutTopView();
-        }
-        if (mBottomView != null) {
-            layoutBottomView();
+        layoutTopView();
+        layoutBottomView();
+    }
+
+    @Override
+    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+        super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+
+        if (dyUnconsumed > 0 && !canTargetScrollDown()) {
+            mTranslationY += -dyUnconsumed;
+//            if (Math.abs(mTranslationY) > DEFAULT_REFRESH_HEIGHT) {
+//                mTranslationY = -DEFAULT_REFRESH_HEIGHT;
+//            }
+            mTarget.setTranslationY(mTranslationY);
+//            mBottomView.setTranslationY(mTranslationY);
+
+//            if (mListener != null && !mIsLoadingMore) {
+//                mIsLoadingMore = true;
+//                mCircleView.setVisibility(VISIBLE);
+//                mProgress.start();
+//                mListener.onLoadMore();
+//            }
         }
     }
 
@@ -70,11 +89,17 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     }
 
     private void layoutTopView() {
-
+        if(mTopView == null) {
+            return;
+        }
+        mProgressController.layoutTopView(this, mTarget, mTopView);
     }
 
     private void layoutBottomView() {
-
+        if(mBottomView == null) {
+            return;
+        }
+        mProgressController.layoutBottomView(this, mTarget, mBottomView);
     }
 
     private void setTarget() {
@@ -92,5 +117,13 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
         if (mTarget == null) {
             throw new IllegalStateException(this.getClass().getSimpleName() + "的子View必须为RecyclerView或实现IRefreshListView接口的View");
         }
+    }
+
+    private boolean canTargetScrollUp() {
+        return false;
+    }
+
+    private boolean canTargetScrollDown() {
+        return false;
     }
 }

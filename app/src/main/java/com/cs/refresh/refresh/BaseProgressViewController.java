@@ -8,12 +8,22 @@ import android.view.View;
 
 public class BaseProgressViewController implements IRefreshProgressViewController {
     @Override
-    public void createTopProgressView() {
+    public View createTopProgressView() {
+        return null;
+    }
+
+    @Override
+    public View createBottomProgressView() {
+        return null;
+    }
+
+    @Override
+    public void layoutTopView(View parent, View refreshListView, View topView) {
 
     }
 
     @Override
-    public void createBottomProgressView() {
+    public void layoutBottomView(View parent, View refreshListView, View bottomView) {
 
     }
 }
