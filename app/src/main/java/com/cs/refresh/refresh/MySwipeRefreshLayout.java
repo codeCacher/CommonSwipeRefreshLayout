@@ -1,5 +1,8 @@
 package com.cs.refresh.refresh;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.view.NestedScrollingChild;
@@ -8,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.TranslateAnimation;
 
 public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingParent,
         NestedScrollingChild {
@@ -95,10 +97,6 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
         }
 
         if (isUp) {
-            if (mTranslationY > mCalculateHelper.getDefaultRefreshTrigger()
-                    && mRefreshListener != null && !isRefreshingOrLoadingMore()) {
-                mRefreshListener.onRefresh();
-            }
             return;
         }
 
@@ -119,12 +117,7 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     @Override
     public void onStopNestedScroll(@NonNull View child) {
         super.onStopNestedScroll(child);
-        TranslateAnimation anim = new TranslateAnimation(0, 0, mTranslationY, 0);
-        anim.setDuration(ANIM_DURATION);
-        mTarget.startAnimation(anim);
-        mTarget.setTranslationY(0);
-        mTranslationY = 0;
-        mIsDragging = false;
+        startResetAnimation();
     }
 
     public void setRefreshProgressController(IRefreshProgressViewController controller) {
@@ -230,5 +223,49 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
 
     private boolean isRefreshingOrLoadingMore() {
         return mIsRefreshing || mIsLoadingMore;
+    }
+
+    private void startResetAnimation() {
+        if (mTranslationY == 0) {
+            return;
+        }
+        if (mTranslationY > mCalculateHelper.getDefaultRefreshTrigger()
+                && mRefreshListener != null && !isRefreshingOrLoadingMore()) {
+            mIsRefreshing = true;
+        }
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, 0);
+        animator.setDuration(ANIM_DURATION);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (mIsRefreshing && mRefreshListener != null) {
+                    mRefreshListener.onRefresh();
+                    return;
+                }
+                if (mIsRefreshing && mRefreshListener == null) {
+                    mIsRefreshing = false;
+                }
+            }
+        });
+        animator.start();
+
+//        TranslateAnimation anim = new TranslateAnimation(0, 0, mTranslationY, 0);
+//        anim.setAnimationListener(new SimpleAnimationListener() {
+//            @Override
+//            public void onAnimationEnd(Animation animation) {
+//                if (mIsRefreshing && mRefreshListener != null) {
+//                    mRefreshListener.onRefresh();
+//                    return;
+//                }
+//                if (mIsRefreshing && mRefreshListener == null) {
+//                    mIsRefreshing = false;
+//                }
+//            }
+//        });
+//        anim.setDuration(ANIM_DURATION);
+//        mTarget.startAnimation(anim);
+//        mTarget.setTranslationY(0);
+        mTranslationY = 0;
+        mIsDragging = false;
     }
 }
