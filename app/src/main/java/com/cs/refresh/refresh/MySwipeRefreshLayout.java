@@ -248,23 +248,6 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
             }
         });
         animator.start();
-
-//        TranslateAnimation anim = new TranslateAnimation(0, 0, mTranslationY, 0);
-//        anim.setAnimationListener(new SimpleAnimationListener() {
-//            @Override
-//            public void onAnimationEnd(Animation animation) {
-//                if (mIsRefreshing && mRefreshListener != null) {
-//                    mRefreshListener.onRefresh();
-//                    return;
-//                }
-//                if (mIsRefreshing && mRefreshListener == null) {
-//                    mIsRefreshing = false;
-//                }
-//            }
-//        });
-//        anim.setDuration(ANIM_DURATION);
-//        mTarget.startAnimation(anim);
-//        mTarget.setTranslationY(0);
         mTranslationY = 0;
         mIsDragging = false;
     }
