@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import com.cs.refresh.refresh.IRefreshListView;
+
 /**
  * Created by Administrator on 2018/1/16.
  */
