@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.cs.refresh.refresh.BaseProgressViewController;
 import com.cs.refresh.refresh.MySwipeRefreshLayout;
 
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
         mRv.setLayoutManager(new LinearLayoutManager(this));
         mRv.setAdapter(mAdapter);
         mAdapter.setData(list);
+
+        mSrl.setRefreshProgressController(new BaseProgressViewController());
 
 //        mSrl.setOnRefreshListener(new BaseSwipeRefreshLayout.OnRefreshListener() {
 //            @Override

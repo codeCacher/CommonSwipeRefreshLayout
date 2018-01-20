@@ -15,6 +15,10 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     private static final int REFRESH_STYPE_NON_INTRUSIVE = 1;
 
     private View mTarget;
+    private IRefreshProgressViewController mProgressController;
+
+    private View mTopView;
+    private View mBottomView;
 
     private int mTopStyle;
     private int mBottomStyle;
@@ -30,6 +34,32 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         setTarget();
+        layoutTargetList();
+        if (mTopView != null) {
+            layoutTopView();
+        }
+        if (mBottomView != null) {
+            layoutBottomView();
+        }
+    }
+
+    public void setRefreshProgressController(IRefreshProgressViewController controller) {
+        if (controller == null) {
+            return;
+        }
+        this.mProgressController = controller;
+        mTopView = controller.createTopProgressView();
+        mBottomView = controller.createBottomProgressView();
+        if (mTopView != null) {
+            addView(mTopView);
+        }
+        if (mBottomView != null) {
+            addView(mBottomView);
+        }
+        postInvalidate();
+    }
+
+    private void layoutTargetList() {
         int width = getMeasuredWidth();
         int height = getMeasuredHeight();
         int childLeft = getPaddingLeft();
@@ -37,6 +67,14 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
         int childWidth = width - getPaddingLeft() - getPaddingRight();
         int childHeight = height - getPaddingTop() - getPaddingBottom();
         mTarget.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
+    }
+
+    private void layoutTopView() {
+
+    }
+
+    private void layoutBottomView() {
+
     }
 
     private void setTarget() {
@@ -48,6 +86,7 @@ public class MySwipeRefreshLayout extends ViewGroup implements NestedScrollingPa
             View child = getChildAt(i);
             if (child instanceof RecyclerView || child instanceof IRefreshListView) {
                 mTarget = child;
+                break;
             }
         }
         if (mTarget == null) {
