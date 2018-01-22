@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
 import com.cs.refresh.refresh.BaseProgressViewController;
 import com.cs.refresh.refresh.MySwipeRefreshLayout;
@@ -77,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    public void refresh(View view) {
+        mAdapter.setData(null);
     }
 
     interface CallBack {

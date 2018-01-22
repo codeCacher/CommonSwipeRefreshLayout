@@ -31,7 +31,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         } else {
             this.mData = list;
         }
-        notifyDataSetChanged();
+        notifyItemRangeChanged(0, mData.size() == 0 ? 0 : mData.size() - 1);
     }
 
     public void addData(List<Integer> list) {

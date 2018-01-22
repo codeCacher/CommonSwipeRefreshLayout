@@ -9,8 +9,7 @@ import android.view.View;
 public class RefreshCalculateHelper {
 
     private static final int DEFAULT_REFRESH_TRIGGER = 64;
-    private static final int MAX_TOP_DRAG_LENGTH = 80;
-    private static final int MAX_BOTTOM_DRAG_LENGTH = 80;
+    private static final int MAX_TOP_DRAG_LENGTH = 150;
 
     private float mDensity;
 
@@ -26,21 +25,22 @@ public class RefreshCalculateHelper {
         return (int) (MAX_TOP_DRAG_LENGTH * mDensity);
     }
 
-    public int getMaxBottomDragLength() {
-        return (int) (MAX_BOTTOM_DRAG_LENGTH * mDensity);
-    }
-
     public int getDefaultRefreshTrigger() {
         return (int) (DEFAULT_REFRESH_TRIGGER * mDensity);
     }
 
-    public int ensureTranslationY(int y) {
+    public int ensureTopTranslationY(int y) {
         if (y > 0 && y > getMaxTopDragLength()) {
             y = getMaxTopDragLength();
         }
-        if (y < 0 && -y > getMaxBottomDragLength()) {
-            y = -getMaxBottomDragLength();
-        }
         return y;
+    }
+
+    public int calculateTopTranslationY(int y, int dy) {
+        y = ensureTopTranslationY(y);
+        if (dy < 0) {
+            dy = (int) ((1 - 1f * y / getMaxTopDragLength()) * dy);
+        }
+        return y - dy;
     }
 }
