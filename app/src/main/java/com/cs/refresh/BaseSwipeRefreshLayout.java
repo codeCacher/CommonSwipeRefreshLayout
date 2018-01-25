@@ -98,14 +98,14 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     private static final int ANIMATE_TO_START_DURATION = 200;
 
     // Default background for the progress spinner
-    protected static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
+    private static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
     // Default offset in dips from the top of the view to where the progress spinner should stop
     private static final int DEFAULT_CIRCLE_TARGET = 64;
 
-    protected View mTarget; // the target of the gesture
-    protected OnRefreshListener mListener;
-    protected boolean mRefreshing = false;
-    protected boolean mLoadingMore = false;
+    private View mTarget; // the target of the gesture
+    OnRefreshListener mListener;
+    boolean mRefreshing = false;
+    boolean mLoadingMore = false;
     private int mTouchSlop;
     private float mTotalDragDistance = -1;
 
@@ -162,12 +162,27 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
 
     boolean mNotify;
 
-    protected int mCircleDiameter;
+    private int mCircleDiameter;
 
     // Whether the client has set a custom starting position;
     boolean mUsingCustomStart;
 
     private OnChildScrollUpCallback mChildScrollUpCallback;
+
+    private CircleImageView mBottomCircleView;
+    private CircularProgressDrawable mBottomProgress;
+
+    private RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (!canChildScrollDown() && mListener != null && !mLoadingMore && !mRefreshing) {
+                    setLoadingMore(true);
+                    mListener.onLoadMore();
+                }
+            }
+        }
+    };
 
     private Animation.AnimationListener mRefreshListener = new Animation.AnimationListener() {
         @Override
@@ -222,6 +237,10 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         reset();
+        if (!(mTarget instanceof RecyclerView)) {
+            return;
+        }
+        ((RecyclerView) mTarget).removeOnScrollListener(mScrollListener);
     }
 
     private void setColorViewAlpha(int targetAlpha) {
@@ -343,6 +362,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
         mCircleDiameter = (int) (CIRCLE_DIAMETER * metrics.density);
 
         createProgressView();
+        createBottomProgressView();
         ViewCompat.setChildrenDrawingOrderEnabled(this, true);
         // the absolute offset has to take into account that the circle starts at an offset
         mSpinnerOffsetEnd = (int) (DEFAULT_CIRCLE_TARGET * metrics.density);
@@ -385,6 +405,15 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
         addView(mCircleView);
     }
 
+    private void createBottomProgressView() {
+        mBottomCircleView = new CircleImageView(getContext(), CIRCLE_BG_LIGHT);
+        mBottomProgress = new CircularProgressDrawable(getContext());
+        mBottomProgress.setStyle(CircularProgressDrawable.DEFAULT);
+        mBottomCircleView.setImageDrawable(mBottomProgress);
+        mBottomCircleView.setVisibility(View.GONE);
+        addView(mBottomCircleView);
+    }
+
     /**
      * Set the listener to be notified when a refresh is triggered via the swipe
      * gesture.
@@ -414,6 +443,17 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
             startScaleUpAnimation(mRefreshListener);
         } else {
             setRefreshing(refreshing, false /* notify */);
+        }
+    }
+
+    public void setLoadingMore(boolean loadingMore) {
+        mLoadingMore = loadingMore;
+        if (loadingMore) {
+            mBottomCircleView.setVisibility(VISIBLE);
+            mBottomProgress.start();
+        } else {
+            mBottomCircleView.setVisibility(GONE);
+            mBottomProgress.stop();
         }
     }
 
@@ -615,6 +655,18 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
         int circleHeight = mCircleView.getMeasuredHeight();
         mCircleView.layout((width / 2 - circleWidth / 2), mCurrentTargetOffsetTop,
                 (width / 2 + circleWidth / 2), mCurrentTargetOffsetTop + circleHeight);
+
+        setTarget();
+        int bottomWidth = getMeasuredWidth();
+        int bottomCircleWidth = mBottomCircleView.getMeasuredWidth();
+        mBottomCircleView.layout((bottomWidth / 2 - bottomCircleWidth / 2), (int) (mTarget.getBottom() - bottomCircleWidth * 1.5f),
+                (bottomWidth / 2 + bottomCircleWidth / 2), (int) (mTarget.getBottom() - bottomCircleWidth * 0.5f));
+    }
+
+    private void setTarget() {
+        if (mTarget instanceof RecyclerView) {
+            ((RecyclerView) mTarget).addOnScrollListener(mScrollListener);
+        }
     }
 
     @Override
@@ -640,6 +692,8 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
                 break;
             }
         }
+        mBottomCircleView.measure(MeasureSpec.makeMeasureSpec(mCircleDiameter, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(mCircleDiameter, MeasureSpec.EXACTLY));
     }
 
     /**
@@ -664,6 +718,10 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
             return ListViewCompat.canScrollList((ListView) mTarget, -1);
         }
         return mTarget.canScrollVertically(-1);
+    }
+
+    public boolean canChildScrollDown() {
+        return mTarget != null && mTarget.canScrollVertically(1);
     }
 
     /**
@@ -832,6 +890,15 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
         if (dy < 0 && !canChildScrollUp()) {
             mTotalUnconsumed += Math.abs(dy);
             moveSpinner(mTotalUnconsumed);
+        }
+
+        if (dyUnconsumed > 0 && !canChildScrollDown()) {
+            if (mListener != null && !mLoadingMore && !mRefreshing) {
+                mLoadingMore = true;
+                mBottomCircleView.setVisibility(VISIBLE);
+                mBottomProgress.start();
+                mListener.onLoadMore();
+            }
         }
     }
 
