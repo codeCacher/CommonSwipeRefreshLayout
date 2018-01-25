@@ -17,10 +17,19 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
     private static final String TAG = "CommonSwipeRefresh";
     private static final long ANIM_DURATION = 200;
 
-    private View mTarget;
     private CircleImageView mCircleView;
     private CircularProgressDrawable mProgress;
-    private boolean mIsNestedFling;
+    private RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (!canChildScrollDown() && mListener != null && !mLoadingMore && !mRefreshing) {
+                    setLoadingMore(true);
+                    mListener.onLoadMore();
+                }
+            }
+        }
+    };
 
     public CommonSwipeRefreshLayout(Context context) {
         this(context, null);
@@ -28,10 +37,10 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
 
     public CommonSwipeRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
+    private void init() {
         createBottomProgressView();
     }
 
@@ -47,7 +56,10 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
 
     public void setLoadingMore(boolean loadingMore) {
         mLoadingMore = loadingMore;
-        if (!loadingMore) {
+        if (loadingMore) {
+            mCircleView.setVisibility(VISIBLE);
+            mProgress.start();
+        } else {
             mCircleView.setVisibility(GONE);
             mProgress.stop();
         }
@@ -64,6 +76,9 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
+        if (mTarget == null) {
+            return;
+        }
         setTarget();
         final int width = getMeasuredWidth();
         int circleWidth = mCircleView.getMeasuredWidth();
@@ -73,52 +88,22 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
     }
 
     private void setTarget() {
-        int childCount = getChildCount();
-        if (mTarget != null || childCount <= 0) {
+        if (mTarget instanceof RecyclerView) {
+            ((RecyclerView) mTarget).addOnScrollListener(mScrollListener);
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (!(mTarget instanceof RecyclerView)) {
             return;
         }
-        for (int i = 0; i < childCount; i++) {
-            View child = getChildAt(i);
-            if (child instanceof RecyclerView) {
-                mTarget = child;
-            }
-        }
-        if (mTarget == null) {
-            throw new IllegalStateException(this.getClass().getSimpleName() + "的子View必须为RecyclerView或实现IRefreshListView接口的View");
-        }
-        ((RecyclerView)mTarget).addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    Log.i(TAG, "" + mIsNestedFling + canChildScrollDown() + mLoadingMore);
-                    if (mIsNestedFling && !canChildScrollDown() && mListener != null && !mLoadingMore) {
-                        Log.i(TAG, "fling to start load more");
-                        mLoadingMore = true;
-                        mCircleView.setVisibility(VISIBLE);
-                        mProgress.start();
-                        mListener.onLoadMore();
-                    }
-                    mIsNestedFling = false;
-                }
-            }
-        });
+        ((RecyclerView) mTarget).removeOnScrollListener(mScrollListener);
     }
 
     public boolean canChildScrollDown() {
         return mTarget != null && mTarget.canScrollVertically(1);
-    }
-
-    @Override
-    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
-        Log.i(TAG, "onNestedFling");
-        mIsNestedFling = true;
-        return super.onNestedFling(target, velocityX, velocityY, consumed);
-    }
-
-    @Override
-    public void onStopNestedScroll(View target) {
-        Log.i(TAG, "onStopNestedScroll");
-        super.onStopNestedScroll(target);
     }
 
     @Override
@@ -127,7 +112,7 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 
         if (dyUnconsumed > 0 && !canChildScrollDown()) {
-            if (mListener != null && !mLoadingMore) {
+            if (mListener != null && !mLoadingMore && !mRefreshing) {
                 mLoadingMore = true;
                 mCircleView.setVisibility(VISIBLE);
                 mProgress.start();

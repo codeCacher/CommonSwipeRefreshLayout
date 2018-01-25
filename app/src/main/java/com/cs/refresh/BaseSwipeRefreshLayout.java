@@ -102,9 +102,9 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     // Default offset in dips from the top of the view to where the progress spinner should stop
     private static final int DEFAULT_CIRCLE_TARGET = 64;
 
-    private View mTarget; // the target of the gesture
+    protected View mTarget; // the target of the gesture
     protected OnRefreshListener mListener;
-    boolean mRefreshing = false;
+    protected boolean mRefreshing = false;
     protected boolean mLoadingMore = false;
     private int mTouchSlop;
     private float mTotalDragDistance = -1;
