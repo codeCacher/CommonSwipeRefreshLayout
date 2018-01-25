@@ -102,7 +102,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     // Default offset in dips from the top of the view to where the progress spinner should stop
     private static final int DEFAULT_CIRCLE_TARGET = 64;
 
-    private View mTarget; // the target of the gesture
+    protected View mTarget; // the target of the gesture
     OnRefreshListener mListener;
     boolean mRefreshing = false;
     boolean mLoadingMore = false;
@@ -829,11 +829,11 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
         // before allowing the list to scroll
         if (dy > 0 && mTotalUnconsumed > 0) {
             if (dy > mTotalUnconsumed) {
-                consumed[1] = dy - (int) mTotalUnconsumed;
+//                consumed[1] = dy - (int) mTotalUnconsumed;
                 mTotalUnconsumed = 0;
             } else {
                 mTotalUnconsumed -= dy;
-                consumed[1] = dy;
+//                consumed[1] = dy;
             }
             moveSpinner(mTotalUnconsumed);
         }
@@ -969,6 +969,12 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     }
 
     private void moveSpinner(float overscrollTop) {
+        float space = getResources().getDisplayMetrics().density * CIRCLE_DIAMETER / 2;
+        if (overscrollTop < space) {
+            overscrollTop = 0;
+        } else {
+            overscrollTop -= space;
+        }
         mProgress.setArrowEnabled(true);
         float originalDragPercent = overscrollTop / mTotalDragDistance;
 
