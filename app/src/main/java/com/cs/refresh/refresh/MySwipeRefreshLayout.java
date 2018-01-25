@@ -63,7 +63,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     @Override
     public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
         Log.i(TAG, "onNestedPreFling");
-        return mIsDraggingTop;
+        return mIsDraggingTop || mIsDraggingBottom;
     }
 
     @Override
@@ -118,12 +118,8 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             return;
         }
 
-        if (isDown && !mIsLoadingMore) {
+        if (isDown) {
             mIsDraggingBottom = true;
-            if (mRefreshListener != null && !mIsRefreshing) {
-                mIsLoadingMore = true;
-                mRefreshListener.onLoadMore();
-            }
             return;
         }
 
@@ -146,6 +142,10 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         } else if(mIsDraggingBottom) {
             if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()) {
                 startGoToLoadingMorePositionAnimation();
+            }
+            if (mRefreshListener != null && !mIsRefreshing && !mIsLoadingMore) {
+                mIsLoadingMore = true;
+                mRefreshListener.onLoadMore();
             }
         }
         mIsDraggingTop = false;
