@@ -89,7 +89,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         if (mIsDraggingBottom) {
             int newY = mTranslationY - dy;
             if (!mCalculateHelper.isSameSymbol(mTranslationY, newY)) {
-                mIsDraggingTop = false;
+                mIsDraggingBottom = false;
                 mTranslationY = 0;
             } else if (mTranslationY < 0 || (mTranslationY == 0 && !canTargetScrollDown())) {
                 mTranslationY = mCalculateHelper.calculateBottomTranslationY(mTranslationY, dy);
@@ -127,7 +127,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             return;
         }
 
-        if (mTranslationY != 0 && !mIsRefreshing) {
+        if (mTranslationY != 0 && !mIsRefreshing && !mIsLoadingMore) {
             mTranslationY = 0;
             mTarget.setTranslationY(mTranslationY);
         }
@@ -136,19 +136,20 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     @Override
     public void onStopNestedScroll(@NonNull View child) {
         super.onStopNestedScroll(child);
-        if (!mIsRefreshing) {
+        if (!mIsRefreshing && mIsDraggingTop) {
             if (mTranslationY > mCalculateHelper.getDefaultRefreshTrigger()
                     && mRefreshListener != null && !mIsLoadingMore) {
                 startGoToRefreshingPositionAnimation();
             } else {
                 startResetAnimation();
             }
-            mIsDraggingTop = false;
-            return;
+        } else if(mIsDraggingBottom) {
+            if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()) {
+                startGoToLoadingMorePositionAnimation();
+            }
         }
-        if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()) {
-            startGoToLoadingMorePositionAnimation();
-        }
+        mIsDraggingTop = false;
+        mIsDraggingBottom = false;
     }
 
     public void setRefreshProgressController(IRefreshProgressViewController controller) {
@@ -294,8 +295,8 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     private void startGoToLoadingMorePositionAnimation() {
-        int position = mCalculateHelper.getDefaultBottomHeight();
-        ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, -position);
+        int position = -mCalculateHelper.getDefaultBottomHeight();
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
         animator.setDuration(ANIM_DURATION);
         animator.start();
         mTranslationY = position;

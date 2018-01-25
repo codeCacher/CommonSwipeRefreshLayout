@@ -50,6 +50,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         holder.mTV.setText(String.valueOf(mData.get(position)));
+        holder.mLl.setBackgroundColor(mData.get(position));
     }
 
     @Override
@@ -66,7 +67,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             super(itemView);
             mTV = itemView.findViewById(R.id.tv);
             mLl = itemView.findViewById(R.id.ll);
-            mLl.setBackgroundColor((new Random().nextInt()));
         }
     }
 }
