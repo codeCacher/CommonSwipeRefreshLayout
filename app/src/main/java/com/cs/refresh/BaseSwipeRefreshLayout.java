@@ -105,7 +105,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     private View mTarget; // the target of the gesture
     protected OnRefreshListener mListener;
     boolean mRefreshing = false;
-    boolean mLoadingMore = false;
+    protected boolean mLoadingMore = false;
     private int mTouchSlop;
     private float mTotalDragDistance = -1;
 
@@ -133,7 +133,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     // refresh was triggered.
     private boolean mReturningToStart;
     private final DecelerateInterpolator mDecelerateInterpolator;
-    private static final int[] LAYOUT_ATTRS = new int[] {
+    private static final int[] LAYOUT_ATTRS = new int[]{
             android.R.attr.enabled
     };
 
@@ -244,9 +244,9 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
      *              up rather than clipped.
      * @param start The offset in pixels from the top of this view at which the
      *              progress spinner should appear.
-     * @param end The offset in pixels from the top of this view at which the
-     *            progress spinner should come to rest after a successful swipe
-     *            gesture.
+     * @param end   The offset in pixels from the top of this view at which the
+     *              progress spinner should come to rest after a successful swipe
+     *              gesture.
      */
     public void setProgressViewOffset(boolean scale, int start, int end) {
         mScale = scale;
@@ -259,7 +259,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
 
     /**
      * @return The offset in pixels from the top of this view at which the progress spinner should
-     *         appear.
+     * appear.
      */
     public int getProgressViewStartOffset() {
         return mOriginalOffsetTop;
@@ -267,7 +267,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
 
     /**
      * @return The offset in pixels from the top of this view at which the progress spinner should
-     *         come to rest after a successful swipe gesture.
+     * come to rest after a successful swipe gesture.
      */
     public int getProgressViewEndOffset() {
         return mSpinnerOffsetEnd;
@@ -282,9 +282,9 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
      * @param scale Set to true if there is no view at a higher z-order than where the progress
      *              spinner is set to appear. Setting it to true will cause indicator to be scaled
      *              up rather than clipped.
-     * @param end The offset in pixels from the top of this view at which the
-     *            progress spinner should come to rest after a successful swipe
-     *            gesture.
+     * @param end   The offset in pixels from the top of this view at which the
+     *              progress spinner should come to rest after a successful swipe
+     *              gesture.
      */
     public void setProgressViewEndTarget(boolean scale, int end) {
         mSpinnerOffsetEnd = end;
@@ -441,6 +441,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
 
     /**
      * Pre API 11, this does an alpha animation.
+     *
      * @param progress
      */
     void setAnimationProgress(float progress) {
@@ -562,7 +563,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
 
     /**
      * @return Whether the SwipeRefreshWidget is actively showing refresh
-     *         progress.
+     * progress.
      */
     public boolean isRefreshing() {
         return mRefreshing;
@@ -653,7 +654,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
 
     /**
      * @return Whether it is possible for the child view of this layout to
-     *         scroll up. Override this if the child view is a custom view.
+     * scroll up. Override this if the child view is a custom view.
      */
     public boolean canChildScrollUp() {
         if (mChildScrollUpCallback != null) {
@@ -668,6 +669,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
     /**
      * Set a callback to override {@link BaseSwipeRefreshLayout#canChildScrollUp()} method. Non-null
      * callback will return the value provided by the callback and ignore all internal logic.
+     *
      * @param callback Callback that should be called when canChildScrollUp() is called.
      */
     public void setOnChildScrollUpCallback(@Nullable OnChildScrollUpCallback callback) {
@@ -1136,7 +1138,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
         mScaleDownToStartAnimation = new Animation() {
             @Override
             public void applyTransformation(float interpolatedTime, Transformation t) {
-                float targetScale = (mStartingScale + (-mStartingScale  * interpolatedTime));
+                float targetScale = (mStartingScale + (-mStartingScale * interpolatedTime));
                 setAnimationProgress(targetScale);
                 moveToStart(interpolatedTime);
             }
@@ -1189,8 +1191,7 @@ public class BaseSwipeRefreshLayout extends ViewGroup implements NestedScrolling
          * is called to allow the implementer to override its behavior.
          *
          * @param parent SwipeRefreshLayout that this callback is overriding.
-         * @param child The child view of SwipeRefreshLayout.
-         *
+         * @param child  The child view of SwipeRefreshLayout.
          * @return Whether it is possible for the child view of parent layout to scroll up.
          */
         boolean canChildScrollUp(BaseSwipeRefreshLayout parent, @Nullable View child);

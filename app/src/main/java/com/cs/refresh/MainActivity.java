@@ -4,15 +4,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.support.v4.widget.BaseSwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-
-import com.cs.refresh.refresh.BaseProgressViewController;
-import com.cs.refresh.refresh.MySwipeRefreshLayout;
-import com.cs.refresh.refresh.RefreshListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +18,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRv;
-    private MySwipeRefreshLayout mSrl;
+    private CommonSwipeRefreshLayout mSrl;
     private MyAdapter mAdapter;
     private Handler mUIHandler = new Handler(Looper.getMainLooper());
 
@@ -41,9 +38,7 @@ public class MainActivity extends AppCompatActivity {
         mRv.setAdapter(mAdapter);
         mAdapter.setData(list);
 
-        mSrl.setRefreshProgressController(new BaseProgressViewController());
-
-        mSrl.setRefreshListener(new RefreshListener() {
+        mSrl.setOnRefreshListener(new BaseSwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 Log.i("cuishun", "onRefresh");
@@ -78,6 +73,44 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+
+//        mSrl.setRefreshProgressController(new BaseProgressViewController());
+
+//        mSrl.setRefreshListener(new RefreshListener() {
+//            @Override
+//            public void onRefresh() {
+//                Log.i("cuishun", "onRefresh");
+//                getList(new CallBack() {
+//                    @Override
+//                    public void onCallBack(final List<Integer> list) {
+//                        mUIHandler.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                mAdapter.setData(list);
+//                                mSrl.setRefreshing(false);
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onLoadMore() {
+//                Log.i("cuishun", "onLoadMore");
+//                getList(new CallBack() {
+//                    @Override
+//                    public void onCallBack(final List<Integer> list) {
+//                        mUIHandler.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                mAdapter.addData(list);
+//                                mSrl.setLoadingMore(false);
+//                            }
+//                        });
+//                    }
+//                });
+//            }
+//        });
     }
 
     public void refresh(View view) {
@@ -104,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        mRv = (RecyclerView) findViewById(R.id.rv);
-        mSrl = (MySwipeRefreshLayout) findViewById(R.id.srl);
+        mRv = findViewById(R.id.rv);
+        mSrl = findViewById(R.id.srl);
     }
 }

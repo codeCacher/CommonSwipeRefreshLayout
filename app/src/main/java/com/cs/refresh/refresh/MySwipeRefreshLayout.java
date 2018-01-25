@@ -9,11 +9,14 @@ import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
 public class MySwipeRefreshLayout extends FrameLayout implements NestedScrollingParent,
         NestedScrollingChild {
+
+    private static final String TAG = "MySwipeRefreshLayout";
 
     public static final int REFRESH_STYPE_INTRUSIVE = 0;
     public static final int REFRESH_STYPE_NON_INTRUSIVE = 1;
@@ -35,7 +38,8 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     private boolean mIsLoadingMore;
     private boolean mIsRefreshing;
-    private boolean mIsDragging;
+    private boolean mIsDraggingTop;
+    private boolean mIsDraggingBottom;
 
     private RefreshCalculateHelper mCalculateHelper;
 
@@ -58,18 +62,40 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     @Override
     public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
-        return mIsDragging;
+        Log.i(TAG, "onNestedPreFling");
+        return mIsDraggingTop;
+    }
+
+    @Override
+    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+        Log.i(TAG, "onNestedFling");
+        return super.onNestedFling(target, velocityX, velocityY, consumed);
     }
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
-        if(mIsDragging && !mIsRefreshing) {
+        if (mIsDraggingTop && !mIsRefreshing) {
             int newY = mTranslationY - dy;
             if (!mCalculateHelper.isSameSymbol(mTranslationY, newY)) {
-                mIsDragging = false;
+                mIsDraggingTop = false;
                 mTranslationY = 0;
-            } else {
+            } else if (mTranslationY > 0 || (mTranslationY == 0 && !canTargetScrollUp())) {
                 mTranslationY = mCalculateHelper.calculateTopTranslationY(mTranslationY, dy);
+            }
+//            else if (mTranslationY < 0 || (mTranslationY == 0 && !canTargetScrollDown())) {
+//                mTranslationY = mCalculateHelper.calculateBottomTranslationY(mTranslationY, dy);
+//            }
+            mTarget.setTranslationY(mTranslationY);
+            consumed[1] = dy;
+            return;
+        }
+        if (mIsDraggingBottom) {
+            int newY = mTranslationY - dy;
+            if (!mCalculateHelper.isSameSymbol(mTranslationY, newY)) {
+                mIsDraggingTop = false;
+                mTranslationY = 0;
+            } else if (mTranslationY < 0 || (mTranslationY == 0 && !canTargetScrollDown())) {
+                mTranslationY = mCalculateHelper.calculateBottomTranslationY(mTranslationY, dy);
             }
             mTarget.setTranslationY(mTranslationY);
             consumed[1] = dy;
@@ -85,21 +111,24 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 
+        Log.i(TAG, "onNestedScroll");
+
         boolean isUp = dyUnconsumed < 0 && !canTargetScrollUp();
         boolean isDown = dyUnconsumed > 0 && !canTargetScrollDown();
 
         if (isUp) {
-            mIsDragging = true;
+            mIsDraggingTop = true;
             return;
         }
 
-//        if (isDown) {
-//            if (mRefreshListener != null && !isRefreshingOrLoadingMore()) {
-//                mIsLoadingMore = true;
-//                mRefreshListener.onLoadMore();
-//            }
-//            return;
-//        }
+        if (isDown) {
+            mIsDraggingBottom = true;
+            if (mRefreshListener != null && !isRefreshingOrLoadingMore()) {
+                mIsLoadingMore = true;
+                mRefreshListener.onLoadMore();
+            }
+            return;
+        }
 
         if (mTranslationY != 0 && !mIsRefreshing) {
             mTranslationY = 0;
@@ -110,16 +139,19 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     @Override
     public void onStopNestedScroll(@NonNull View child) {
         super.onStopNestedScroll(child);
-        if (!mIsDragging || mIsRefreshing) {
+        if (!mIsDraggingTop && !mIsRefreshing) {
+            if (mTranslationY > mCalculateHelper.getDefaultRefreshTrigger()
+                    && mRefreshListener != null && !mIsLoadingMore) {
+                startGoToRefreshingPositionAnimation();
+            } else {
+                startResetAnimation();
+            }
+            mIsDraggingTop = false;
             return;
         }
-        if (mTranslationY > mCalculateHelper.getDefaultRefreshTrigger()
-                && mRefreshListener != null && !mIsLoadingMore) {
-            startGoToRefreshingPositionAnimation();
-        } else {
-            startResetAnimation();
+        if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()) {
+            startGoToLoadingMorePositionAnimation();
         }
-        mIsDragging = false;
     }
 
     public void setRefreshProgressController(IRefreshProgressViewController controller) {
@@ -260,6 +292,14 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                 }
             }
         });
+        animator.start();
+        mTranslationY = position;
+    }
+
+    private void startGoToLoadingMorePositionAnimation() {
+        int position = mCalculateHelper.getDefaultBottomHeight();
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, -position);
+        animator.setDuration(ANIM_DURATION);
         animator.start();
         mTranslationY = position;
     }

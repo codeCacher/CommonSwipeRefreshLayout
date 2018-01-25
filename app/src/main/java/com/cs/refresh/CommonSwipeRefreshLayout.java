@@ -8,23 +8,19 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import com.cs.refresh.refresh.IRefreshListView;
-
 /**
- * Created by Administrator on 2018/1/16.
+ * Created by CuiShun on 2018/1/16.
  */
 
 public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
 
-    private static final long ANIM_DURATION = 200;
     private static final String TAG = "CommonSwipeRefresh";
+    private static final long ANIM_DURATION = 200;
 
     private View mTarget;
-    private boolean mIsLoadingMore;
-    private int mTranslationY;
     private CircleImageView mCircleView;
     private CircularProgressDrawable mProgress;
-//    private View mBottomView;
+    private boolean mIsNestedFling;
 
     public CommonSwipeRefreshLayout(Context context) {
         this(context, null);
@@ -36,8 +32,6 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
     }
 
     private void init(Context context) {
-//        mBottomView = LayoutInflater.from(context).inflate(R.layout.bottom_refresh_layout, this, false);
-//        addView(mBottomView);
         createBottomProgressView();
     }
 
@@ -52,10 +46,8 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
 
 
     public void setLoadingMore(boolean loadingMore) {
-        this.mIsLoadingMore = loadingMore;
+        mLoadingMore = loadingMore;
         if (!loadingMore) {
-//            mTarget.setTranslationY(0);
-//            mTranslationY = 0;
             mCircleView.setVisibility(GONE);
             mProgress.stop();
         }
@@ -87,13 +79,29 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
         }
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            if (child instanceof RecyclerView || child instanceof IRefreshListView) {
+            if (child instanceof RecyclerView) {
                 mTarget = child;
             }
         }
         if (mTarget == null) {
             throw new IllegalStateException(this.getClass().getSimpleName() + "的子View必须为RecyclerView或实现IRefreshListView接口的View");
         }
+        ((RecyclerView)mTarget).addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    Log.i(TAG, "" + mIsNestedFling + canChildScrollDown() + mLoadingMore);
+                    if (mIsNestedFling && !canChildScrollDown() && mListener != null && !mLoadingMore) {
+                        Log.i(TAG, "fling to start load more");
+                        mLoadingMore = true;
+                        mCircleView.setVisibility(VISIBLE);
+                        mProgress.start();
+                        mListener.onLoadMore();
+                    }
+                    mIsNestedFling = false;
+                }
+            }
+        });
     }
 
     public boolean canChildScrollDown() {
@@ -101,40 +109,30 @@ public class CommonSwipeRefreshLayout extends BaseSwipeRefreshLayout {
     }
 
     @Override
+    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+        Log.i(TAG, "onNestedFling");
+        mIsNestedFling = true;
+        return super.onNestedFling(target, velocityX, velocityY, consumed);
+    }
+
+    @Override
+    public void onStopNestedScroll(View target) {
+        Log.i(TAG, "onStopNestedScroll");
+        super.onStopNestedScroll(target);
+    }
+
+    @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+        Log.i(TAG, "onNestedScroll");
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 
         if (dyUnconsumed > 0 && !canChildScrollDown()) {
-//            mTranslationY += -dyUnconsumed;
-//            if (Math.abs(mTranslationY) > DEFAULT_REFRESH_HEIGHT) {
-//                mTranslationY = -DEFAULT_REFRESH_HEIGHT;
-//            }
-//            mTarget.setTranslationY(mTranslationY);
-//            mBottomView.setTranslationY(mTranslationY);
-
-            if (mListener != null && !mIsLoadingMore) {
-                mIsLoadingMore = true;
+            if (mListener != null && !mLoadingMore) {
+                mLoadingMore = true;
                 mCircleView.setVisibility(VISIBLE);
                 mProgress.start();
                 mListener.onLoadMore();
             }
         }
     }
-
-//    private void startResetAnim() {
-//        TranslateAnimation anim = new TranslateAnimation(0, 0, mTranslationY, 0);
-//        anim.setDuration(ANIM_DURATION);
-//        mTarget.startAnimation(anim);
-//        mTarget.setTranslationY(0);
-//        mTranslationY = 0;
-//    }
-
-//    @Override
-//    public void onStopNestedScroll(View target) {
-//        super.onStopNestedScroll(target);
-//        if (mTarget == null) {
-//            return;
-//        }
-//        startResetAnim();
-//    }
 }

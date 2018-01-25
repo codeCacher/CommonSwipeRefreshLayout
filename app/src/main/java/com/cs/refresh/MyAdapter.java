@@ -31,16 +31,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         } else {
             this.mData = list;
         }
-        notifyItemRangeChanged(0, mData.size() == 0 ? 0 : mData.size() - 1);
+        notifyDataSetChanged();
     }
 
     public void addData(List<Integer> list) {
         if (list == null) {
             return;
         }
-        int size = this.mData.size();
         this.mData.addAll(list);
-        notifyItemInserted(size);
+        notifyDataSetChanged();
     }
 
     @Override
