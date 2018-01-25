@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <com.cs.refresh.CommonSwipeRefreshLayout
+    <com.cs.refresh.refresh.MySwipeRefreshLayout
         android:id="@+id/srl"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -22,6 +22,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    </com.cs.refresh.CommonSwipeRefreshLayout>
+    </com.cs.refresh.refresh.MySwipeRefreshLayout>
 
 </RelativeLayout>
