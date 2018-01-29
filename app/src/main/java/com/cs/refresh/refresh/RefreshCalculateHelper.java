@@ -70,4 +70,12 @@ public class RefreshCalculateHelper {
         }
         return y - dy;
     }
+
+    public int getTopTranslationY(boolean isRefresh) {
+        if(isRefresh) {
+            return getDefaultRefreshTrigger();
+        } else {
+            return 0;
+        }
+    }
 }

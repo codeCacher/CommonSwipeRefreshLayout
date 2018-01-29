@@ -85,42 +85,32 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
-        if (mIsRefreshing && canTargetScrollUp()) {
-            return;
-        }
-        if (mTranslationY != 0 && !mIsRefreshing && !mIsLoadingMore) {
-            consumed[1] = dy;
-        }
-        if (dy < 0 && mTranslationY < 0) {
-            consumed[1] = dy;
-            mIsDraggingBottom = true;
-        }
         if (mIsDraggingTop) {
+            int topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
             int newY = mTranslationY - dy;
-            if (!mCalculateHelper.isSameSymbol(mTranslationY, newY)) {
+            if (!mCalculateHelper.isSameSymbol(mTranslationY - topTranslationY, newY - topTranslationY)) {
                 mIsDraggingTop = false;
-                mTranslationY = 0;
-            } else if (mTranslationY > 0 || (mTranslationY == 0 && !canTargetScrollUp())) {
+                mTranslationY = topTranslationY;
+            } else {
                 mTranslationY = mCalculateHelper.calculateTopTranslationY(mTranslationY, dy);
-            }
-            if (mTranslationY < mCalculateHelper.getDefaultRefreshTrigger() && mIsRefreshing) {
-                mTranslationY = mCalculateHelper.getDefaultBottomHeight();
-            } else if (!canTargetScrollUp()) {
                 consumed[1] = dy;
             }
             mTarget.setTranslationY(mTranslationY);
             return;
+        }
+        if (dy < 0 && mTranslationY < 0) {
+            mIsDraggingBottom = true;
         }
         if (mIsDraggingBottom) {
             int newY = mTranslationY - dy;
             if (!mCalculateHelper.isSameSymbol(mTranslationY, newY)) {
                 mIsDraggingBottom = false;
                 mTranslationY = 0;
-            } else if (mTranslationY < 0 || (mTranslationY == 0 && !canTargetScrollDown())) {
+            } else {
                 mTranslationY = mCalculateHelper.calculateBottomTranslationY(mTranslationY, dy);
+                consumed[1] = dy;
             }
             mTarget.setTranslationY(mTranslationY);
-            consumed[1] = dy;
         }
     }
 
@@ -148,8 +138,9 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             return;
         }
 
-        if (mTranslationY != 0 && !mIsRefreshing && !mIsLoadingMore) {
-            mTranslationY = 0;
+        int topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
+        if (mTranslationY != topTranslationY && !mIsRefreshing && !mIsLoadingMore) {
+            mTranslationY = topTranslationY;
             mTarget.setTranslationY(mTranslationY);
         }
     }
@@ -180,7 +171,6 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        Log.i("cuishun", "onInterceptTouchEvent" + ev.toString());
         if (mCancelTouch) {
             return true;
         }
