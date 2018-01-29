@@ -9,7 +9,7 @@ import android.view.View;
 public class RefreshCalculateHelper {
 
     private static final int DEFAULT_REFRESH_TRIGGER = 64;
-    private static final int DEFAULT_BOTTOM_HEIGHT = 64;
+    private static final int DEFAULT_BOTTOM_HEIGHT = 50;
     private static final int MAX_TOP_DRAG_LENGTH = 150;
     private static final int MAX_BOTTOM_DRAG_LENGTH = 150;
 
@@ -72,10 +72,21 @@ public class RefreshCalculateHelper {
     }
 
     public int getTopTranslationY(boolean isRefresh) {
-        if(isRefresh) {
+        if (isRefresh) {
             return getDefaultRefreshTrigger();
         } else {
             return 0;
         }
+    }
+
+    public long calculateBottomAnimDuration(float currVelocity) {
+        long t = (long) (getDefaultBottomHeight() / currVelocity * 2000);
+        if (t > 300) {
+            t = 300;
+        }
+        if (t < 50) {
+            t = 50;
+        }
+        return t;
     }
 }

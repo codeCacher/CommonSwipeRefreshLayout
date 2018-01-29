@@ -12,7 +12,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
+import android.widget.Scroller;
 
 public class MySwipeRefreshLayout extends FrameLayout implements NestedScrollingParent,
         NestedScrollingChild {
@@ -41,6 +43,10 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     private boolean mCancelTouch;
     private boolean mStartFling;
 
+    private Scroller mScroller;
+    private int mMaximumVelocity;
+    private int mMinimumVelocity;
+
     private RefreshCalculateHelper mCalculateHelper;
 
     RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
@@ -48,8 +54,13 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE && mStartFling) {
                 mStartFling = false;
+                mScroller.computeScrollOffset();
+                float currVelocity = mScroller.getCurrVelocity();
+                mScroller.abortAnimation();
                 if (!canTargetScrollDown() && mRefreshListener != null && !mIsLoadingMore && !mIsRefreshing) {
-                    startGoToLoadingMorePositionAnimation();
+                    long duration = mCalculateHelper.calculateBottomAnimDuration(currVelocity);
+                    Log.i(TAG, "SCROLL_STATE_IDLE speed:" + currVelocity + " duration:" + duration);
+                    startGoToLoadingMorePositionAnimation(duration);
                     startLoadMore();
                 }
             }
@@ -62,7 +73,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     public MySwipeRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context);
     }
 
     @Override
@@ -99,9 +110,13 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     @Override
-    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+    public boolean onNestedFling(@NonNull View target, float velocityX, float velocityY, boolean consumed) {
         Log.i(TAG, "onNestedFling");
         mStartFling = true;
+        if (consumed) {
+            mScroller.abortAnimation();
+            mScroller.fling(0, 0, (int) velocityX, (int) velocityY, 0, 0, mMinimumVelocity, mMaximumVelocity);
+        }
         return super.onNestedFling(target, velocityX, velocityY, consumed);
     }
 
@@ -180,7 +195,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             }
         } else if (mIsDraggingBottom) {
             if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()
-                    && mRefreshListener != null && !mIsRefreshing) {
+                    && mRefreshListener != null && !mIsRefreshing && !canTargetScrollDown()) {
                 startGoToLoadingMorePositionAnimation();
                 startLoadMore();
             } else {
@@ -194,10 +209,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         Log.i(TAG, "mCancelTouch:" + mCancelTouch + " onInterceptTouchEvent:" + ev.toString());
-        if (mCancelTouch) {
-            return true;
-        }
-        return super.onInterceptTouchEvent(ev);
+        return mCancelTouch || super.onInterceptTouchEvent(ev);
     }
 
     public void setRefreshProgressController(IRefreshProgressViewController controller) {
@@ -242,8 +254,13 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         this.mBottomStyle = style;
     }
 
-    private void init() {
+    private void init(Context context) {
         mCalculateHelper = new RefreshCalculateHelper(this);
+        mScroller = new Scroller(context);
+        mMaximumVelocity = ViewConfiguration.get(context)
+                .getScaledMaximumFlingVelocity();
+        mMinimumVelocity = ViewConfiguration.get(context)
+                .getScaledMinimumFlingVelocity();
     }
 
     private void layoutTargetList() {
@@ -359,11 +376,11 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         mTranslationY = position;
     }
 
-    private void startGoToLoadingMorePositionAnimation() {
+    private void startGoToLoadingMorePositionAnimation(long duration) {
         mCancelTouch = true;
         int position = -mCalculateHelper.getDefaultBottomHeight();
         ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
-        animator.setDuration(ANIM_DURATION);
+        animator.setDuration(duration);
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -372,5 +389,9 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         });
         animator.start();
         mTranslationY = position;
+    }
+
+    private void startGoToLoadingMorePositionAnimation() {
+        startGoToLoadingMorePositionAnimation(ANIM_DURATION);
     }
 }
