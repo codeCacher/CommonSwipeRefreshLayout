@@ -1,6 +1,8 @@
 package com.cs.refresh.refresh;
 
+import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Created by CuiShun on 2018/1/20.
@@ -8,11 +10,19 @@ import android.view.View;
  */
 
 public interface IRefreshProgressViewController {
-    View createTopProgressView();
+    void createTopProgressView();
 
-    View createBottomProgressView();
+    void createBottomProgressView();
 
-    void layoutTopView(View parent, View refreshListView, View topView);
+    View getTopProgressView();
 
-    void layoutBottomView(View parent, View refreshListView, View bottomView);
+    View getBottomProgressView();
+
+    void onMeasureTopView(@NonNull ViewGroup parent, @NonNull View refreshListView);
+
+    void onMeasureBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView);
+
+    void layoutTopView(@NonNull ViewGroup parent, @NonNull View refreshListView);
+
+    void layoutBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView);
 }

@@ -27,13 +27,11 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     private View mTarget;
     private IRefreshProgressViewController mProgressController;
 
-    private View mTopView;
-    private View mBottomView;
-
     private int mTopStyle;
     private int mBottomStyle;
 
     private int mTranslationY;
+    private int mTopY;
 
     private RefreshListener mRefreshListener;
 
@@ -63,6 +61,17 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (mProgressController != null && mProgressController.getTopProgressView() != null) {
+            mProgressController.onMeasureTopView(this, mTarget);
+        }
+        if (mProgressController != null && mProgressController.getBottomProgressView() != null) {
+            mProgressController.onMeasureBottomView(this, mTarget);
+        }
+    }
+
+    @Override
     public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
         Log.i(TAG, "onNestedPreFling");
         return mIsDraggingTop || mIsDraggingBottom;
@@ -76,8 +85,15 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
-        if (mTranslationY != 0 && !mIsRefreshing) {
+        if (mIsRefreshing && canTargetScrollUp()) {
+            return;
+        }
+        if (mTranslationY != 0 && !mIsRefreshing && !mIsLoadingMore) {
             consumed[1] = dy;
+        }
+        if (dy < 0 && mTranslationY < 0) {
+            consumed[1] = dy;
+            mIsDraggingBottom = true;
         }
         if (mIsDraggingTop) {
             int newY = mTranslationY - dy;
@@ -87,8 +103,12 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             } else if (mTranslationY > 0 || (mTranslationY == 0 && !canTargetScrollUp())) {
                 mTranslationY = mCalculateHelper.calculateTopTranslationY(mTranslationY, dy);
             }
+            if (mTranslationY < mCalculateHelper.getDefaultRefreshTrigger() && mIsRefreshing) {
+                mTranslationY = mCalculateHelper.getDefaultBottomHeight();
+            } else if (!canTargetScrollUp()) {
+                consumed[1] = dy;
+            }
             mTarget.setTranslationY(mTranslationY);
-            consumed[1] = dy;
             return;
         }
         if (mIsDraggingBottom) {
@@ -147,7 +167,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             }
         } else if (mIsDraggingBottom) {
             if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()
-                    && mRefreshListener != null && !mIsRefreshing && !mIsLoadingMore) {
+                    && mRefreshListener != null && !mIsRefreshing) {
                 startGoToLoadingMorePositionAnimation();
                 startLoadMore();
             } else {
@@ -172,13 +192,13 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             return;
         }
         this.mProgressController = controller;
-        mTopView = controller.createTopProgressView();
-        mBottomView = controller.createBottomProgressView();
-        if (mTopView != null) {
-            addView(mTopView);
+        controller.createTopProgressView();
+        controller.createBottomProgressView();
+        if (mProgressController != null && mProgressController.getTopProgressView() != null) {
+            addView(mProgressController.getTopProgressView());
         }
-        if (mBottomView != null) {
-            addView(mBottomView);
+        if (mProgressController != null && mProgressController.getBottomProgressView() != null) {
+            addView(mProgressController.getBottomProgressView());
         }
         postInvalidate();
     }
@@ -224,17 +244,15 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     private void layoutTopView() {
-        if (mTopView == null) {
-            return;
+        if (mProgressController != null) {
+            mProgressController.layoutTopView(this, mTarget);
         }
-        mProgressController.layoutTopView(this, mTarget, mTopView);
     }
 
     private void layoutBottomView() {
-        if (mBottomView == null) {
-            return;
+        if (mProgressController != null) {
+            mProgressController.layoutBottomView(this, mTarget);
         }
-        mProgressController.layoutBottomView(this, mTarget, mBottomView);
     }
 
     private void setTarget() {

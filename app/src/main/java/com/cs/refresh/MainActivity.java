@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        mSrl.setRefreshProgressController(new BaseProgressViewController());
+        mSrl.setRefreshProgressController(new BaseProgressViewController(this));
 
         mSrl.setRefreshListener(new RefreshListener() {
             @Override
