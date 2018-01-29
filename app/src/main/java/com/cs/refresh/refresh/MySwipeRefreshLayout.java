@@ -31,7 +31,6 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     private int mBottomStyle;
 
     private int mTranslationY;
-    private int mTopY;
 
     private RefreshListener mRefreshListener;
 
@@ -40,8 +39,22 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     private boolean mIsDraggingTop;
     private boolean mIsDraggingBottom;
     private boolean mCancelTouch;
+    private boolean mStartFling;
 
     private RefreshCalculateHelper mCalculateHelper;
+
+    RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE && mStartFling) {
+                mStartFling = false;
+                if (!canTargetScrollDown() && mRefreshListener != null && !mIsLoadingMore && !mIsRefreshing) {
+                    startGoToLoadingMorePositionAnimation();
+                    startLoadMore();
+                }
+            }
+        }
+    };
 
     public MySwipeRefreshLayout(Context context) {
         this(context, null);
@@ -50,6 +63,14 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     public MySwipeRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mTarget instanceof RecyclerView) {
+            ((RecyclerView) mTarget).removeOnScrollListener(mScrollListener);
+        }
     }
 
     @Override
@@ -80,6 +101,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
         Log.i(TAG, "onNestedFling");
+        mStartFling = true;
         return super.onNestedFling(target, velocityX, velocityY, consumed);
     }
 
@@ -171,6 +193,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        Log.i(TAG, "mCancelTouch:" + mCancelTouch + " onInterceptTouchEvent:" + ev.toString());
         if (mCancelTouch) {
             return true;
         }
@@ -260,6 +283,9 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         if (mTarget == null) {
             throw new IllegalStateException(this.getClass().getSimpleName() + "的子View必须为RecyclerView或实现IRefreshListView接口的View");
         }
+        if (mTarget instanceof RecyclerView) {
+            ((RecyclerView) mTarget).addOnScrollListener(mScrollListener);
+        }
     }
 
     private boolean canTargetScrollUp() {
@@ -287,6 +313,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     private void startResetAnimation() {
+        Log.i(TAG, "startResetAnimation");
         if (mTranslationY == 0) {
             return;
         }
