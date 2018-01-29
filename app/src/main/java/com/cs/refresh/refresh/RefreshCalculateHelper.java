@@ -80,7 +80,7 @@ public class RefreshCalculateHelper {
     }
 
     public long calculateBottomAnimDuration(float currVelocity) {
-        long t = (long) (getDefaultBottomHeight() / currVelocity * 2000);
+        long t = (long) (getDefaultBottomHeight() / currVelocity * 1000 * mDensity);
         if (t > 300) {
             t = 300;
         }

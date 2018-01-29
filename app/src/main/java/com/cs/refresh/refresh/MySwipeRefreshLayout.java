@@ -61,7 +61,6 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                     long duration = mCalculateHelper.calculateBottomAnimDuration(currVelocity);
                     Log.i(TAG, "SCROLL_STATE_IDLE speed:" + currVelocity + " duration:" + duration);
                     startGoToLoadingMorePositionAnimation(duration);
-                    startLoadMore();
                 }
             }
         }
@@ -197,7 +196,6 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()
                     && mRefreshListener != null && !mIsRefreshing && !canTargetScrollDown()) {
                 startGoToLoadingMorePositionAnimation();
-                startLoadMore();
             } else {
                 startResetAnimation();
             }
@@ -385,6 +383,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCancelTouch = false;
+                startLoadMore();
             }
         });
         animator.start();
