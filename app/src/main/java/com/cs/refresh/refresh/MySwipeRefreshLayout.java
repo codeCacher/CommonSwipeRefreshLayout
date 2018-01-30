@@ -22,7 +22,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     private static final String TAG = "MySwipeRefreshLayout";
 
     public static final int REFRESH_STYPE_INTRUSIVE = 0;
-    public static final int REFRESH_STYPE_NON_INTRUSIVE = 1;
+    public static final int REFRESH_STYPE_NONE_INTRUSIVE = 1;
 
     private static final long ANIM_DURATION = 200;
 
@@ -131,7 +131,9 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                 mTranslationY = mCalculateHelper.calculateTopTranslationY(mTranslationY, dy);
                 consumed[1] = dy;
             }
-            mTarget.setTranslationY(mTranslationY);
+            if (mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
+                mTarget.setTranslationY(mTranslationY);
+            }
             return;
         }
         if (dy < 0 && mTranslationY < 0) {
@@ -146,7 +148,9 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                 mTranslationY = mCalculateHelper.calculateBottomTranslationY(mTranslationY, dy);
                 consumed[1] = dy;
             }
-            mTarget.setTranslationY(mTranslationY);
+            if (mBottomStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
+                mTarget.setTranslationY(mTranslationY);
+            }
         }
     }
 

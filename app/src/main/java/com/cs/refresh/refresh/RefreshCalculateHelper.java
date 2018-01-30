@@ -15,31 +15,31 @@ public class RefreshCalculateHelper {
 
     private float mDensity;
 
-    public RefreshCalculateHelper(View view) {
+    RefreshCalculateHelper(View view) {
         mDensity = view.getResources().getDisplayMetrics().density;
     }
 
-    public boolean isSameSymbol(int a, int b) {
+    boolean isSameSymbol(int a, int b) {
         return (a >= 0 && b >= 0) || (a <= 0 && b <= 0);
     }
 
-    public int getMaxTopDragLength() {
+    private int getMaxTopDragLength() {
         return (int) (MAX_TOP_DRAG_LENGTH * mDensity);
     }
 
-    public int getMaxBottomDragLength() {
+    private int getMaxBottomDragLength() {
         return (int) (MAX_BOTTOM_DRAG_LENGTH * mDensity);
     }
 
-    public int getDefaultRefreshTrigger() {
+    int getDefaultRefreshTrigger() {
         return (int) (DEFAULT_REFRESH_TRIGGER * mDensity);
     }
 
-    public int getDefaultBottomHeight() {
+    int getDefaultBottomHeight() {
         return (int) (DEFAULT_BOTTOM_HEIGHT * mDensity);
     }
 
-    public int ensureTopTranslationY(int y) {
+    private int ensureTopTranslationY(int y) {
         int maxTopDragLength = getMaxTopDragLength();
         if (y > 0 && y > maxTopDragLength) {
             y = maxTopDragLength;
@@ -47,7 +47,7 @@ public class RefreshCalculateHelper {
         return y;
     }
 
-    public int ensureBottomTranslationY(int y) {
+    private int ensureBottomTranslationY(int y) {
         int maxBottomDragLength = getMaxBottomDragLength();
         if (y < 0 && -y > maxBottomDragLength) {
             y = -maxBottomDragLength;
@@ -55,7 +55,7 @@ public class RefreshCalculateHelper {
         return y;
     }
 
-    public int calculateTopTranslationY(int y, int dy) {
+    int calculateTopTranslationY(int y, int dy) {
         y = ensureTopTranslationY(y);
         if (dy < 0) {
             dy = (int) ((1 - 1f * y / getMaxTopDragLength()) * dy);
@@ -63,7 +63,7 @@ public class RefreshCalculateHelper {
         return y - dy;
     }
 
-    public int calculateBottomTranslationY(int y, int dy) {
+    int calculateBottomTranslationY(int y, int dy) {
         y = ensureBottomTranslationY(y);
         if (dy > 0) {
             dy = (int) ((1 + 1f * y / getMaxBottomDragLength()) * dy);
@@ -71,7 +71,7 @@ public class RefreshCalculateHelper {
         return y - dy;
     }
 
-    public int getTopTranslationY(boolean isRefresh) {
+    int getTopTranslationY(boolean isRefresh) {
         if (isRefresh) {
             return getDefaultRefreshTrigger();
         } else {
@@ -79,7 +79,7 @@ public class RefreshCalculateHelper {
         }
     }
 
-    public long calculateBottomAnimDuration(float currVelocity) {
+    long calculateBottomAnimDuration(float currVelocity) {
         long t = (long) (getDefaultBottomHeight() / currVelocity * 1000 * mDensity);
         if (t > 300) {
             t = 300;
