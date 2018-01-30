@@ -75,29 +75,42 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     }
 
     @Override
-    public void layoutTopView(@NonNull ViewGroup parent, @NonNull View refreshListView) {
+    public void layoutTopView(@NonNull ViewGroup parent, @NonNull View refreshListView, int style) {
         final int width = parent.getMeasuredWidth();
         int circleWidth = mTopCircleView.getMeasuredWidth();
         int circleHeight = mTopCircleView.getMeasuredHeight();
-        mTopCircleView.layout((width / 2 - circleWidth / 2), refreshListView.getTop() - circleHeight,
-                (width / 2 + circleWidth / 2), refreshListView.getTop());
+        if (style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+            mTopCircleView.layout((width / 2 - circleWidth / 2), refreshListView.getTop() - circleHeight,
+                    (width / 2 + circleWidth / 2), refreshListView.getTop());
+        } else {
+            mTopCircleView.layout((width / 2 - circleWidth / 2), (int) (refreshListView.getTop() - 1.5f * circleHeight),
+                    (width / 2 + circleWidth / 2), (int) (refreshListView.getTop() - 0.5f * circleHeight));
+        }
     }
 
     @Override
-    public void layoutBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView) {
+    public void layoutBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView, int style) {
         int width = parent.getMeasuredWidth();
         int circleWidth = mBottomCircleView.getMeasuredWidth();
         int circleHeight = mBottomCircleView.getMeasuredHeight();
-        mBottomCircleView.layout((width / 2 - circleWidth / 2), (int) (refreshListView.getBottom() - circleHeight * 1.5f),
-                (width / 2 + circleWidth / 2), (int) (refreshListView.getBottom() - circleHeight * 0.5f));
+        if (style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+            mBottomCircleView.layout((width / 2 - circleWidth / 2), (int) (refreshListView.getBottom() - circleHeight * 1.5f),
+                    (width / 2 + circleWidth / 2), (int) (refreshListView.getBottom() - circleHeight * 0.5f));
+        } else {
+            mBottomCircleView.layout((width / 2 - circleWidth / 2), refreshListView.getBottom(),
+                    (width / 2 + circleWidth / 2), refreshListView.getBottom() + circleHeight);
+        }
     }
 
     @Override
     public void onTopDragScroll(int translationY, int style) {
-        if (mIsRefreshing) {
+        if (mIsRefreshing && style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
             return;
         }
         mTopCircleView.setTranslationY(translationY);
+        if (mTopProgress.isRunning()) {
+            return;
+        }
         mTopProgress.setArrowEnabled(true);
         mTopProgress.setStartEndTrim(0, 0.8f);
         mTopProgress.setProgressRotation(1f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density);
@@ -105,7 +118,13 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public void onBottomDragScroll(int translationY, int style) {
-
+        if (style == MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE) {
+            if (!mBottomProgress.isRunning()) {
+                mBottomProgress.start();
+                mBottomCircleView.setVisibility(View.VISIBLE);
+            }
+            mBottomCircleView.setTranslationY(translationY);
+        }
     }
 
     @Override
@@ -119,7 +138,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
                 animator.removeAllListeners();
                 if (desPosition == 0) {
                     mTopProgress.stop();
-                } else {
+                } else if (!mTopProgress.isRunning()) {
                     mTopProgress.start();
                 }
             }
@@ -128,8 +147,21 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     }
 
     @Override
-    public void onBottomTranslationAnimation(int desPosition, long duration) {
-
+    public void onBottomTranslationAnimation(final int desPosition, long duration) {
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(mBottomCircleView, "translationY", mBottomCircleView.getTranslationY(), desPosition);
+        animator.setDuration(duration);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                animator.removeAllListeners();
+                if (desPosition == 0) {
+                    mBottomProgress.stop();
+                } else if (!mBottomProgress.isRunning()) {
+                    mBottomProgress.start();
+                }
+            }
+        });
+        animator.start();
     }
 
     @Override
@@ -146,7 +178,9 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     public void onStartLoadMore() {
         mIsLoadingMore = true;
         mBottomCircleView.setVisibility(View.VISIBLE);
-        mBottomProgress.start();
+        if (!mBottomProgress.isRunning()) {
+            mBottomProgress.start();
+        }
     }
 
     @Override

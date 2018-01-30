@@ -22,9 +22,9 @@ public interface IRefreshProgressViewController {
 
     void onMeasureBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView);
 
-    void layoutTopView(@NonNull ViewGroup parent, @NonNull View refreshListView);
+    void layoutTopView(@NonNull ViewGroup parent, @NonNull View refreshListView, int style);
 
-    void layoutBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView);
+    void layoutBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView, int style);
 
     void onTopDragScroll(int translationY, int style);
 

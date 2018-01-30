@@ -187,11 +187,14 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             }
         }
 
-//        int topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
-//        if (mTranslationY != topTranslationY && !mIsRefreshing && !mIsLoadingMore) {
-//            mTranslationY = topTranslationY;
-//            mTarget.setTranslationY(mTranslationY);
-//        }
+        int topTranslationY = 0;
+        if(mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
+            topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
+        }
+        if (mTranslationY != topTranslationY && !mIsRefreshing && !mIsLoadingMore) {
+            mTranslationY = topTranslationY;
+            mTarget.setTranslationY(mTranslationY);
+        }
     }
 
     @Override
@@ -244,31 +247,39 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     public void setRefreshing(boolean refreshing) {
-        mIsRefreshing = refreshing;
         if (!refreshing) {
+            mIsRefreshing = false;
             startResetAnimation(true);
             if (mProgressController != null) {
                 mProgressController.onFinishRefresh();
             }
+        } else if(!isRefreshingOrLoadingMore()){
+            startGoToRefreshingPositionAnimation();
+            startRefresh();
         }
     }
 
     public void setLoadingMore(boolean loadingMore) {
-        this.mIsLoadingMore = loadingMore;
         if (!loadingMore) {
+            mIsLoadingMore = false;
             startResetAnimation(false);
             if (mProgressController != null) {
                 mProgressController.onFinishLoadMore();
             }
+        } else if(!isRefreshingOrLoadingMore()){
+            startGoToLoadingMorePositionAnimation();
+            startLoadMore();
         }
     }
 
     public void setTopStyle(int style) {
         this.mTopStyle = style;
+        postInvalidate();
     }
 
     public void setBottomStyle(int style) {
         this.mBottomStyle = style;
+        postInvalidate();
     }
 
     private void init(Context context) {
@@ -292,13 +303,13 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     private void layoutTopView() {
         if (mProgressController != null) {
-            mProgressController.layoutTopView(this, mTarget);
+            mProgressController.layoutTopView(this, mTarget, mTopStyle);
         }
     }
 
     private void layoutBottomView() {
         if (mProgressController != null) {
-            mProgressController.layoutBottomView(this, mTarget);
+            mProgressController.layoutBottomView(this, mTarget, mBottomStyle);
         }
     }
 

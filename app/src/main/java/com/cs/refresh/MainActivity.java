@@ -77,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-//        mSrl.setTopStyle(MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
-//        mSrl.setBottomStyle(MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
+        mSrl.setTopStyle(MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
+        mSrl.setBottomStyle(MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
 
         mSrl.setRefreshProgressController(new BaseProgressViewController(this));
 
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void refresh(View view) {
-        mAdapter.setData(null);
+        mSrl.setRefreshing(true);
     }
 
     interface CallBack {
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SystemClock.sleep(3000);
+                SystemClock.sleep(2000);
                 List<Integer> list = new ArrayList<>();
                 Random random = new Random();
                 for (int i = 0; i < 20; i++) {
