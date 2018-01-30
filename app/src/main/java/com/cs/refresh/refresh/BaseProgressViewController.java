@@ -1,5 +1,8 @@
 package com.cs.refresh.refresh;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.CircularProgressDrawable;
@@ -24,6 +27,9 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
 
     private int mCircleDiameter;
 
+    private boolean mIsRefreshing;
+    private boolean mIsLoadingMore;
+
     public BaseProgressViewController(Context context) {
         this.mContext = context;
         mCircleDiameter = (int) (context.getResources().getDisplayMetrics().density * CIRCLE_DIAMETER);
@@ -35,7 +41,6 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         mTopProgress = new CircularProgressDrawable(mContext);
         mTopProgress.setStyle(CircularProgressDrawable.DEFAULT);
         mTopCircleView.setImageDrawable(mTopProgress);
-        mTopCircleView.setVisibility(View.GONE);
     }
 
     @Override
@@ -88,12 +93,66 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     }
 
     @Override
-    public void onTopDragScroll(int dyTotal, int dyTranslation, int style) {
+    public void onTopDragScroll(int translationY, int style) {
+        if (mIsRefreshing) {
+            return;
+        }
+        mTopCircleView.setTranslationY(translationY);
+        mTopProgress.setArrowEnabled(true);
+        mTopProgress.setStartEndTrim(0, 0.8f);
+        mTopProgress.setProgressRotation(1f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density);
+    }
+
+    @Override
+    public void onBottomDragScroll(int translationY, int style) {
 
     }
 
     @Override
-    public void onBottomDragScroll(int dyTotal, int dyTranslation, int style) {
+    public void onTopTranslationAnimation(final int desPosition, long duration) {
+        mTopProgress.setArrowEnabled(false);
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(mTopCircleView, "translationY", mTopCircleView.getTranslationY(), desPosition);
+        animator.setDuration(duration);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                animator.removeAllListeners();
+                if (desPosition == 0) {
+                    mTopProgress.stop();
+                } else {
+                    mTopProgress.start();
+                }
+            }
+        });
+        animator.start();
+    }
 
+    @Override
+    public void onBottomTranslationAnimation(int desPosition, long duration) {
+
+    }
+
+    @Override
+    public void onStartRefresh() {
+        mIsRefreshing = true;
+    }
+
+    @Override
+    public void onFinishRefresh() {
+        mIsRefreshing = false;
+    }
+
+    @Override
+    public void onStartLoadMore() {
+        mIsLoadingMore = true;
+        mBottomCircleView.setVisibility(View.VISIBLE);
+        mBottomProgress.start();
+    }
+
+    @Override
+    public void onFinishLoadMore() {
+        mIsLoadingMore = false;
+        mBottomCircleView.setVisibility(View.GONE);
+        mBottomProgress.stop();
     }
 }

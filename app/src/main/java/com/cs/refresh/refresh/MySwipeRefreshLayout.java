@@ -57,7 +57,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                 mScroller.computeScrollOffset();
                 float currVelocity = mScroller.getCurrVelocity();
                 mScroller.abortAnimation();
-                if (!canTargetScrollDown() && mRefreshListener != null && !mIsLoadingMore && !mIsRefreshing) {
+                if (!canTargetScrollDown() && canTargetScrollUp() && mRefreshListener != null && !mIsLoadingMore && !mIsRefreshing) {
                     long duration = mCalculateHelper.calculateBottomAnimDuration(currVelocity);
                     Log.i(TAG, "SCROLL_STATE_IDLE speed:" + currVelocity + " duration:" + duration);
                     startGoToLoadingMorePositionAnimation(duration);
@@ -131,6 +131,9 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                 mTranslationY = mCalculateHelper.calculateTopTranslationY(mTranslationY, dy);
                 consumed[1] = dy;
             }
+            if (mProgressController != null) {
+                mProgressController.onTopDragScroll(mTranslationY, mTopStyle);
+            }
             if (mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
                 mTarget.setTranslationY(mTranslationY);
             }
@@ -147,6 +150,9 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             } else {
                 mTranslationY = mCalculateHelper.calculateBottomTranslationY(mTranslationY, dy);
                 consumed[1] = dy;
+            }
+            if (mProgressController != null) {
+                mProgressController.onBottomDragScroll(mTranslationY, mBottomStyle);
             }
             if (mBottomStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
                 mTarget.setTranslationY(mTranslationY);
@@ -166,7 +172,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         Log.i(TAG, "onNestedScroll");
 
         boolean isUp = dyUnconsumed < 0 && !canTargetScrollUp();
-        boolean isDown = dyUnconsumed > 0 && !canTargetScrollDown();
+        boolean isDown = dyUnconsumed > 0 && !canTargetScrollDown() && canTargetScrollUp() && !mIsRefreshing;
 
         if (isUp) {
             mIsDraggingTop = true;
@@ -174,15 +180,18 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         }
 
         if (isDown) {
-            mIsDraggingBottom = true;
-            return;
+            if (mBottomStyle == REFRESH_STYPE_INTRUSIVE) {
+                startLoadMore();
+            } else {
+                mIsDraggingBottom = true;
+            }
         }
 
-        int topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
-        if (mTranslationY != topTranslationY && !mIsRefreshing && !mIsLoadingMore) {
-            mTranslationY = topTranslationY;
-            mTarget.setTranslationY(mTranslationY);
-        }
+//        int topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
+//        if (mTranslationY != topTranslationY && !mIsRefreshing && !mIsLoadingMore) {
+//            mTranslationY = topTranslationY;
+//            mTarget.setTranslationY(mTranslationY);
+//        }
     }
 
     @Override
@@ -193,15 +202,15 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                     && mRefreshListener != null && !mIsLoadingMore) {
                 startGoToRefreshingPositionAnimation();
                 startRefresh();
-            } else if (mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
-                startResetAnimation();
+            } else {
+                startResetAnimation(true);
             }
         } else if (mIsDraggingBottom) {
             if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()
                     && mRefreshListener != null && !mIsRefreshing && !canTargetScrollDown()) {
                 startGoToLoadingMorePositionAnimation();
-            } else if (mBottomStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
-                startResetAnimation();
+            } else {
+                startResetAnimation(false);
             }
         }
         mIsDraggingTop = false;
@@ -236,15 +245,21 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     public void setRefreshing(boolean refreshing) {
         mIsRefreshing = refreshing;
-        if (!refreshing && mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
-            startResetAnimation();
+        if (!refreshing) {
+            startResetAnimation(true);
+            if (mProgressController != null) {
+                mProgressController.onFinishRefresh();
+            }
         }
     }
 
     public void setLoadingMore(boolean loadingMore) {
         this.mIsLoadingMore = loadingMore;
-        if (!loadingMore && mBottomStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
-            startResetAnimation();
+        if (!loadingMore) {
+            startResetAnimation(false);
+            if (mProgressController != null) {
+                mProgressController.onFinishLoadMore();
+            }
         }
     }
 
@@ -331,18 +346,32 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         return mIsRefreshing || mIsLoadingMore;
     }
 
-    private void startResetAnimation() {
+    private void startResetAnimation(boolean isTop) {
         Log.i(TAG, "startResetAnimation");
         if (mTranslationY == 0) {
             return;
         }
+        if (mProgressController != null) {
+            if (isTop) {
+                mProgressController.onTopTranslationAnimation(0, ANIM_DURATION);
+            } else {
+                mProgressController.onBottomTranslationAnimation(0, ANIM_DURATION);
+            }
+        }
+        if ((isTop && mTopStyle == REFRESH_STYPE_INTRUSIVE) ||
+                (!isTop && mBottomStyle == REFRESH_STYPE_INTRUSIVE)) {
+            mTranslationY = 0;
+            return;
+        }
+
         mCancelTouch = true;
-        ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, 0);
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, 0);
         animator.setDuration(ANIM_DURATION);
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCancelTouch = false;
+                animator.removeAllListeners();
             }
         });
         animator.start();
@@ -350,31 +379,42 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     private void startRefresh() {
-        if (!mIsRefreshing && mRefreshListener != null) {
+        if (!isRefreshingOrLoadingMore() && mRefreshListener != null) {
             mIsRefreshing = true;
+            if (mProgressController != null) {
+                mProgressController.onStartRefresh();
+            }
             mRefreshListener.onRefresh();
         }
     }
 
     private void startLoadMore() {
-        if (!mIsLoadingMore && mRefreshListener != null) {
+        if (!isRefreshingOrLoadingMore() && mRefreshListener != null) {
             mIsLoadingMore = true;
+            if (mProgressController != null) {
+                mProgressController.onStartLoadMore();
+            }
             mRefreshListener.onLoadMore();
         }
     }
 
     private void startGoToRefreshingPositionAnimation() {
+        int position = mCalculateHelper.getDefaultRefreshTrigger();
+        if (mProgressController != null) {
+            mProgressController.onTopTranslationAnimation(position, ANIM_DURATION);
+        }
         if (mTopStyle == REFRESH_STYPE_INTRUSIVE) {
+            mTranslationY = position;
             return;
         }
         mCancelTouch = true;
-        int position = mCalculateHelper.getDefaultRefreshTrigger();
-        ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
         animator.setDuration(ANIM_DURATION);
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCancelTouch = false;
+                animator.removeAllListeners();
             }
         });
         animator.start();
@@ -382,18 +422,23 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     private void startGoToLoadingMorePositionAnimation(long duration) {
+        int position = -mCalculateHelper.getDefaultBottomHeight();
+        if (mProgressController != null) {
+            mProgressController.onBottomTranslationAnimation(position, duration);
+        }
         if (mBottomStyle == REFRESH_STYPE_INTRUSIVE) {
+            mTranslationY = position;
             startLoadMore();
             return;
         }
         mCancelTouch = true;
-        int position = -mCalculateHelper.getDefaultBottomHeight();
-        ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
         animator.setDuration(duration);
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCancelTouch = false;
+                animator.removeAllListeners();
                 startLoadMore();
             }
         });

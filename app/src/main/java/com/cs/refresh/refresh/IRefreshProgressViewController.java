@@ -26,7 +26,19 @@ public interface IRefreshProgressViewController {
 
     void layoutBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView);
 
-    void onTopDragScroll(int dyTotal, int dyTranslation, int style);
+    void onTopDragScroll(int translationY, int style);
 
-    void onBottomDragScroll(int dyTotal, int dyTranslation, int style);
+    void onBottomDragScroll(int translationY, int style);
+
+    void onTopTranslationAnimation(int desPosition, long duration);
+
+    void onBottomTranslationAnimation(int desPosition, long duration);
+
+    void onStartRefresh();
+
+    void onFinishRefresh();
+
+    void onStartLoadMore();
+
+    void onFinishLoadMore();
 }

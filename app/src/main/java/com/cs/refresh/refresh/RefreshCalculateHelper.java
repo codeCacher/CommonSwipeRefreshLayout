@@ -8,10 +8,10 @@ import android.view.View;
 
 public class RefreshCalculateHelper {
 
-    private static final int DEFAULT_REFRESH_TRIGGER = 64;
-    private static final int DEFAULT_BOTTOM_HEIGHT = 50;
-    private static final int MAX_TOP_DRAG_LENGTH = 150;
-    private static final int MAX_BOTTOM_DRAG_LENGTH = 150;
+    static final int DEFAULT_REFRESH_TRIGGER = 64;
+    static final int DEFAULT_BOTTOM_HEIGHT = 50;
+    static final int MAX_TOP_DRAG_LENGTH = 150;
+    static final int MAX_BOTTOM_DRAG_LENGTH = 150;
 
     private float mDensity;
 
