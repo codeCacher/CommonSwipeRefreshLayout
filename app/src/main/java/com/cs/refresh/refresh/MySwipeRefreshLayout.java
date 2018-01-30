@@ -193,14 +193,14 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                     && mRefreshListener != null && !mIsLoadingMore) {
                 startGoToRefreshingPositionAnimation();
                 startRefresh();
-            } else {
+            } else if (mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
                 startResetAnimation();
             }
         } else if (mIsDraggingBottom) {
             if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()
                     && mRefreshListener != null && !mIsRefreshing && !canTargetScrollDown()) {
                 startGoToLoadingMorePositionAnimation();
-            } else {
+            } else if (mBottomStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
                 startResetAnimation();
             }
         }
@@ -236,14 +236,14 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
 
     public void setRefreshing(boolean refreshing) {
         mIsRefreshing = refreshing;
-        if (!refreshing) {
+        if (!refreshing && mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
             startResetAnimation();
         }
     }
 
     public void setLoadingMore(boolean loadingMore) {
         this.mIsLoadingMore = loadingMore;
-        if (!loadingMore) {
+        if (!loadingMore && mBottomStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
             startResetAnimation();
         }
     }
@@ -364,6 +364,9 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     private void startGoToRefreshingPositionAnimation() {
+        if (mTopStyle == REFRESH_STYPE_INTRUSIVE) {
+            return;
+        }
         mCancelTouch = true;
         int position = mCalculateHelper.getDefaultRefreshTrigger();
         ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
@@ -379,6 +382,10 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     private void startGoToLoadingMorePositionAnimation(long duration) {
+        if (mBottomStyle == REFRESH_STYPE_INTRUSIVE) {
+            startLoadMore();
+            return;
+        }
         mCancelTouch = true;
         int position = -mCalculateHelper.getDefaultBottomHeight();
         ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);

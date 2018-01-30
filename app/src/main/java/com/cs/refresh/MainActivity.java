@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
+        mSrl.setTopStyle(MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
+
         mSrl.setRefreshProgressController(new BaseProgressViewController(this));
 
         mSrl.setRefreshListener(new RefreshListener() {

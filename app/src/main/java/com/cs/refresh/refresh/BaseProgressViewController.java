@@ -86,4 +86,14 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         mBottomCircleView.layout((width / 2 - circleWidth / 2), (int) (refreshListView.getBottom() - circleHeight * 1.5f),
                 (width / 2 + circleWidth / 2), (int) (refreshListView.getBottom() - circleHeight * 0.5f));
     }
+
+    @Override
+    public void onTopDragScroll(int dyTotal, int dyTranslation, int style) {
+
+    }
+
+    @Override
+    public void onBottomDragScroll(int dyTotal, int dyTranslation, int style) {
+
+    }
 }
