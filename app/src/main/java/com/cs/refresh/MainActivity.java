@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        mSrl.setTopStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
-        mSrl.setBottomStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
+//        mSrl.setTopStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
+//        mSrl.setBottomStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
 
         BaseProgressViewController baseProgressViewController = new BaseProgressViewController(this);
         baseProgressViewController.setTopColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SystemClock.sleep(2000);
+                SystemClock.sleep(5000);
                 List<Integer> list = new ArrayList<>();
                 Random random = new Random();
                 for (int i = 0; i < 20; i++) {

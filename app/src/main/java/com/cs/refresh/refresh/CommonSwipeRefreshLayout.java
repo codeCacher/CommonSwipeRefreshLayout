@@ -34,7 +34,7 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
      */
     public static final int REFRESH_STYPE_NONE_INTRUSIVE = 1;
 
-    private static final long ANIM_DURATION = 100;
+    private static final long ANIM_DURATION = 200;
 
     private View mTarget;
     private IRefreshProgressViewController mProgressController;
@@ -67,7 +67,7 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
                 mScroller.computeScrollOffset();
                 float currVelocity = mScroller.getCurrVelocity();
                 mScroller.abortAnimation();
-                if (!canTargetScrollDown() && canTargetScrollUp() && mRefreshListener != null && !mIsLoadingMore && !mIsRefreshing) {
+                if (!canTargetScrollDown() && canTargetScrollUp() && mRefreshListener != null && !mIsRefreshing) {
                     long duration = mCalculateHelper.calculateBottomAnimDuration(currVelocity);
                     Log.i(TAG, "SCROLL_STATE_IDLE speed:" + currVelocity + " duration:" + duration);
                     startGoToLoadingMorePositionAnimation(duration);

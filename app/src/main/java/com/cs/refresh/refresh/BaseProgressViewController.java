@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 public class BaseProgressViewController implements IRefreshProgressViewController {
 
     private static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
-    static final int CIRCLE_DIAMETER = 40;
+    private static final int CIRCLE_DIAMETER = 40;
 
     private final Context mContext;
     private CircleImageView mTopCircleView;
@@ -140,11 +140,11 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     public void onBottomDragScroll(int translationY, int style) {
         if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE) {
             if (!mBottomProgress.isRunning()) {
-                mBottomProgress.start();
+                mBottomProgress.setArrowEnabled(true);
+                mBottomProgress.setStartEndTrim(0, 0.8f);
+                mBottomProgress.setProgressRotation(1f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density);
                 mBottomCircleView.setVisibility(View.VISIBLE);
             }
-        } else {
-            mBottomCircleView.setTranslationY(translationY);
         }
     }
 
@@ -152,6 +152,9 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     public void onTopTranslationAnimation(int startPosition, final int desPosition, long duration, int style) {
         mTopProgress.setArrowEnabled(false);
         if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+            if (mIsRefreshing && desPosition != 0) {
+                return;
+            }
             final ObjectAnimator animator = ObjectAnimator.ofFloat(mTopCircleView, "translationY", startPosition, desPosition);
             animator.setDuration(duration);
             animator.addListener(new AnimatorListenerAdapter() {
@@ -191,7 +194,10 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public void onListBottomTranslationAnimationStart(int startPosition, int desPosition, long duration, int style) {
-
+        if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE && !mBottomProgress.isRunning()) {
+            mBottomProgress.setArrowEnabled(false);
+            mBottomProgress.start();
+        }
     }
 
     @Override
