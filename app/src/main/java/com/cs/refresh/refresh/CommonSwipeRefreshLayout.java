@@ -91,8 +91,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         super.onDetachedFromWindow();
         if (mTarget instanceof RecyclerView) {
             ((RecyclerView) mTarget).removeOnScrollListener(mScrollListener);
-        } else if (mTarget instanceof AbstractRefreshListView) {
-            ((AbstractRefreshListView) mTarget).removeOnScrollListener(mScrollListener);
+        } else if (mTarget instanceof IRefreshListView) {
+            ((IRefreshListView) mTarget).removeOnScrollListener(mScrollListener);
         }
     }
 
@@ -341,7 +341,7 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         }
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            if (child instanceof RecyclerView || child instanceof AbstractRefreshListView) {
+            if (child instanceof RecyclerView || child instanceof IRefreshListView) {
                 mTarget = child;
                 break;
             }
@@ -351,8 +351,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         }
         if (mTarget instanceof RecyclerView) {
             ((RecyclerView) mTarget).addOnScrollListener(mScrollListener);
-        } else if (mTarget instanceof AbstractRefreshListView) {
-            ((AbstractRefreshListView) mTarget).addOnScrollListener(mScrollListener);
+        } else if (mTarget instanceof IRefreshListView) {
+            ((IRefreshListView) mTarget).addOnScrollListener(mScrollListener);
         }
     }
 
@@ -360,8 +360,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         if (mTarget instanceof RecyclerView) {
             return mTarget.canScrollVertically(-1);
         }
-        if (mTarget instanceof AbstractRefreshListView) {
-            return ((AbstractRefreshListView) mTarget).canScrollUp();
+        if (mTarget instanceof IRefreshListView) {
+            return ((IRefreshListView) mTarget).canScrollUp();
         }
         return false;
     }
@@ -370,8 +370,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         if (mTarget instanceof RecyclerView) {
             return mTarget.canScrollVertically(1);
         }
-        if (mTarget instanceof AbstractRefreshListView) {
-            return ((AbstractRefreshListView) mTarget).canScrollDown();
+        if (mTarget instanceof IRefreshListView) {
+            return ((IRefreshListView) mTarget).canScrollDown();
         }
         return false;
     }
