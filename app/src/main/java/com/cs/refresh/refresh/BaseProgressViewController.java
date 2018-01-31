@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 
 /**
  * Created by CuiShun on 2018/1/20.
- *
  */
 
 public class BaseProgressViewController implements IRefreshProgressViewController {
@@ -228,6 +227,16 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         mIsLoadingMore = false;
         mBottomCircleView.setVisibility(View.GONE);
         mBottomProgress.stop();
+    }
+
+    @Override
+    public int getTopRefreshTrigger() {
+        return CIRCLE_DIAMETER * 2;
+    }
+
+    @Override
+    public int getBottomHeight() {
+        return CIRCLE_DIAMETER;
     }
 
     public void setTopColorSchemeColors(@ColorInt int... colors) {

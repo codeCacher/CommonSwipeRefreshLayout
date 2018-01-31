@@ -90,8 +90,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         super.onDetachedFromWindow();
         if (mTarget instanceof RecyclerView) {
             ((RecyclerView) mTarget).removeOnScrollListener(mScrollListener);
-        } else if(mTarget instanceof AbstractRefreshListView) {
-            ((AbstractRefreshListView)mTarget).removeOnScrollListener(mScrollListener);
+        } else if (mTarget instanceof AbstractRefreshListView) {
+            ((AbstractRefreshListView) mTarget).removeOnScrollListener(mScrollListener);
         }
     }
 
@@ -245,11 +245,19 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         this.mProgressController = controller;
         controller.createTopProgressView();
         controller.createBottomProgressView();
-        if (mProgressController != null && mProgressController.getTopProgressView() != null) {
+        if (mProgressController.getTopProgressView() != null) {
             addView(mProgressController.getTopProgressView());
         }
-        if (mProgressController != null && mProgressController.getBottomProgressView() != null) {
+        if (mProgressController.getBottomProgressView() != null) {
             addView(mProgressController.getBottomProgressView());
+        }
+        int topRefreshTrigger = mProgressController.getTopRefreshTrigger();
+        int bottomHeight = mProgressController.getBottomHeight();
+        if (topRefreshTrigger > 0) {
+            mCalculateHelper.setDefaultRefreshTrigger(topRefreshTrigger);
+        }
+        if (bottomHeight > 0) {
+            mCalculateHelper.setDefaultBottomHeight(bottomHeight);
         }
         postInvalidate();
     }
@@ -342,8 +350,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         }
         if (mTarget instanceof RecyclerView) {
             ((RecyclerView) mTarget).addOnScrollListener(mScrollListener);
-        } else if(mTarget instanceof AbstractRefreshListView) {
-            ((AbstractRefreshListView)mTarget).addOnScrollListener(mScrollListener);
+        } else if (mTarget instanceof AbstractRefreshListView) {
+            ((AbstractRefreshListView) mTarget).addOnScrollListener(mScrollListener);
         }
     }
 

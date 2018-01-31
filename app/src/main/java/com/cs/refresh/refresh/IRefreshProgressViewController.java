@@ -49,4 +49,8 @@ public interface IRefreshProgressViewController {
     void onStartLoadMore();
 
     void onFinishLoadMore();
+
+    int getTopRefreshTrigger();
+
+    int getBottomHeight();
 }

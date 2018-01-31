@@ -8,8 +8,8 @@ import android.view.View;
 
 public class RefreshCalculateHelper {
 
-    static final int DEFAULT_REFRESH_TRIGGER = 64;
-    static final int DEFAULT_BOTTOM_HEIGHT = 50;
+    static int DEFAULT_REFRESH_TRIGGER = 64;
+    static int DEFAULT_BOTTOM_HEIGHT = 50;
     static final int MAX_TOP_DRAG_LENGTH = 150;
     static final int MAX_BOTTOM_DRAG_LENGTH = 150;
 
@@ -88,5 +88,13 @@ public class RefreshCalculateHelper {
             t = 50;
         }
         return t;
+    }
+
+    void setDefaultRefreshTrigger(int distance) {
+        DEFAULT_REFRESH_TRIGGER = distance;
+    }
+
+    void setDefaultBottomHeight(int distance) {
+        DEFAULT_BOTTOM_HEIGHT = distance;
     }
 }
