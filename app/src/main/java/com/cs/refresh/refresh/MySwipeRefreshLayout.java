@@ -16,15 +16,25 @@ import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
+/**
+ * Created by CuiShun on 2018/1/20.
+ */
+
 public class MySwipeRefreshLayout extends FrameLayout implements NestedScrollingParent,
         NestedScrollingChild {
 
     private static final String TAG = "MySwipeRefreshLayout";
 
+    /**
+     * 侵入式，list不会移动，需要controller控制top和bottom的移动
+     */
     public static final int REFRESH_STYPE_INTRUSIVE = 0;
+    /**
+     * 非侵入式，top和bottom会跟随list移动，controller不需要控制移动
+     */
     public static final int REFRESH_STYPE_NONE_INTRUSIVE = 1;
 
-    private static final long ANIM_DURATION = 200;
+    private static final long ANIM_DURATION = 100;
 
     private View mTarget;
     private IRefreshProgressViewController mProgressController;
@@ -135,7 +145,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                 mProgressController.onTopDragScroll(mTranslationY, mTopStyle);
             }
             if (mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
-                mTarget.setTranslationY(mTranslationY);
+                this.setScrollY(-mTranslationY);
             }
             return;
         }
@@ -155,7 +165,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
                 mProgressController.onBottomDragScroll(mTranslationY, mBottomStyle);
             }
             if (mBottomStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
-                mTarget.setTranslationY(mTranslationY);
+                this.setScrollY(-mTranslationY);
             }
         }
     }
@@ -188,12 +198,12 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         }
 
         int topTranslationY = 0;
-        if(mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
+        if (mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
             topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
         }
         if (mTranslationY != topTranslationY && !mIsRefreshing && !mIsLoadingMore) {
             mTranslationY = topTranslationY;
-            mTarget.setTranslationY(mTranslationY);
+            this.setScrollY(-mTranslationY);
         }
     }
 
@@ -253,7 +263,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             if (mProgressController != null) {
                 mProgressController.onFinishRefresh();
             }
-        } else if(!isRefreshingOrLoadingMore()){
+        } else if (!isRefreshingOrLoadingMore()) {
             startGoToRefreshingPositionAnimation();
             startRefresh();
         }
@@ -266,7 +276,7 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             if (mProgressController != null) {
                 mProgressController.onFinishLoadMore();
             }
-        } else if(!isRefreshingOrLoadingMore()){
+        } else if (!isRefreshingOrLoadingMore()) {
             startGoToLoadingMorePositionAnimation();
             startLoadMore();
         }
@@ -357,16 +367,16 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         return mIsRefreshing || mIsLoadingMore;
     }
 
-    private void startResetAnimation(boolean isTop) {
+    private void startResetAnimation(final boolean isTop) {
         Log.i(TAG, "startResetAnimation");
         if (mTranslationY == 0) {
             return;
         }
         if (mProgressController != null) {
             if (isTop) {
-                mProgressController.onTopTranslationAnimation(0, ANIM_DURATION);
+                mProgressController.onTopTranslationAnimation(mTranslationY, 0, ANIM_DURATION, mTopStyle);
             } else {
-                mProgressController.onBottomTranslationAnimation(0, ANIM_DURATION);
+                mProgressController.onBottomTranslationAnimation(mTranslationY, 0, ANIM_DURATION, mBottomStyle);
             }
         }
         if ((isTop && mTopStyle == REFRESH_STYPE_INTRUSIVE) ||
@@ -376,13 +386,31 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         }
 
         mCancelTouch = true;
-        final ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, 0);
+        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", -mTranslationY, 0);
         animator.setDuration(ANIM_DURATION);
         animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (mProgressController != null) {
+                    if (isTop) {
+                        mProgressController.onListTopTranslationAnimationStart(mTranslationY, 0, ANIM_DURATION, mTopStyle);
+                    } else {
+                        mProgressController.onListBottomTranslationAnimationStart(mTranslationY, 0, ANIM_DURATION, mBottomStyle);
+                    }
+                }
+            }
+
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCancelTouch = false;
                 animator.removeAllListeners();
+                if (mProgressController != null) {
+                    if (isTop) {
+                        mProgressController.onListTopTranslationAnimationEnd(mTranslationY, 0, ANIM_DURATION, mTopStyle);
+                    } else {
+                        mProgressController.onListBottomTranslationAnimationEnd(mTranslationY, 0, ANIM_DURATION, mBottomStyle);
+                    }
+                }
             }
         });
         animator.start();
@@ -410,32 +438,42 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
     }
 
     private void startGoToRefreshingPositionAnimation() {
-        int position = mCalculateHelper.getDefaultRefreshTrigger();
+        final int position = mCalculateHelper.getDefaultRefreshTrigger();
         if (mProgressController != null) {
-            mProgressController.onTopTranslationAnimation(position, ANIM_DURATION);
+            mProgressController.onTopTranslationAnimation(mTranslationY, position, ANIM_DURATION, mTopStyle);
         }
         if (mTopStyle == REFRESH_STYPE_INTRUSIVE) {
             mTranslationY = position;
             return;
         }
         mCancelTouch = true;
-        final ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
+        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", -mTranslationY, -position);
         animator.setDuration(ANIM_DURATION);
         animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (mProgressController != null) {
+                    mProgressController.onListTopTranslationAnimationStart(mTranslationY, position, ANIM_DURATION, mTopStyle);
+                }
+            }
+
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCancelTouch = false;
                 animator.removeAllListeners();
+                if (mProgressController != null) {
+                    mProgressController.onListTopTranslationAnimationEnd(mTranslationY, position, ANIM_DURATION, mTopStyle);
+                }
             }
         });
         animator.start();
         mTranslationY = position;
     }
 
-    private void startGoToLoadingMorePositionAnimation(long duration) {
-        int position = -mCalculateHelper.getDefaultBottomHeight();
+    private void startGoToLoadingMorePositionAnimation(final long duration) {
+        final int position = -mCalculateHelper.getDefaultBottomHeight();
         if (mProgressController != null) {
-            mProgressController.onBottomTranslationAnimation(position, duration);
+            mProgressController.onBottomTranslationAnimation(mTranslationY, position, duration, mBottomStyle);
         }
         if (mBottomStyle == REFRESH_STYPE_INTRUSIVE) {
             mTranslationY = position;
@@ -443,14 +481,24 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
             return;
         }
         mCancelTouch = true;
-        final ObjectAnimator animator = ObjectAnimator.ofFloat(mTarget, "translationY", mTranslationY, position);
+        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", -mTranslationY, -position);
         animator.setDuration(duration);
         animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (mProgressController != null) {
+                    mProgressController.onListBottomTranslationAnimationStart(mTranslationY, position, duration, mBottomStyle);
+                }
+            }
+
             @Override
             public void onAnimationEnd(Animator animation) {
                 mCancelTouch = false;
                 animator.removeAllListeners();
                 startLoadMore();
+                if (mProgressController != null) {
+                    mProgressController.onListBottomTranslationAnimationEnd(mTranslationY, position, duration, mBottomStyle);
+                }
             }
         });
         animator.start();

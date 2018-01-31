@@ -30,9 +30,17 @@ public interface IRefreshProgressViewController {
 
     void onBottomDragScroll(int translationY, int style);
 
-    void onTopTranslationAnimation(int desPosition, long duration);
+    void onTopTranslationAnimation(int startPosition, int desPosition, long duration, int style);
 
-    void onBottomTranslationAnimation(int desPosition, long duration);
+    void onBottomTranslationAnimation(int startPosition, int desPosition, long duration, int style);
+
+    void onListTopTranslationAnimationStart(int startPosition, int desPosition, long duration, int style);
+
+    void onListTopTranslationAnimationEnd(int startPosition, int desPosition, long duration, int style);
+
+    void onListBottomTranslationAnimationStart(int startPosition, int desPosition, long duration, int style);
+
+    void onListBottomTranslationAnimationEnd(int startPosition, int desPosition, long duration, int style);
 
     void onStartRefresh();
 

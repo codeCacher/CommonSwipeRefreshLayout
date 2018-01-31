@@ -104,10 +104,12 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public void onTopDragScroll(int translationY, int style) {
-        if (mIsRefreshing && style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
-            return;
+        if (style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+            if (mIsRefreshing) {
+                return;
+            }
+            mTopCircleView.setTranslationY(translationY);
         }
-        mTopCircleView.setTranslationY(translationY);
         if (mTopProgress.isRunning()) {
             return;
         }
@@ -123,45 +125,64 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
                 mBottomProgress.start();
                 mBottomCircleView.setVisibility(View.VISIBLE);
             }
+        } else {
             mBottomCircleView.setTranslationY(translationY);
         }
     }
 
     @Override
-    public void onTopTranslationAnimation(final int desPosition, long duration) {
+    public void onTopTranslationAnimation(int startPosition, final int desPosition, long duration, int style) {
         mTopProgress.setArrowEnabled(false);
-        final ObjectAnimator animator = ObjectAnimator.ofFloat(mTopCircleView, "translationY", mTopCircleView.getTranslationY(), desPosition);
-        animator.setDuration(duration);
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                animator.removeAllListeners();
-                if (desPosition == 0) {
-                    mTopProgress.stop();
-                } else if (!mTopProgress.isRunning()) {
-                    mTopProgress.start();
+        if (style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+            final ObjectAnimator animator = ObjectAnimator.ofFloat(mTopCircleView, "translationY", startPosition, desPosition);
+            animator.setDuration(duration);
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    animator.removeAllListeners();
+                    if (desPosition == 0) {
+                        mTopProgress.stop();
+                    } else if (!mTopProgress.isRunning()) {
+                        mTopProgress.start();
+                    }
                 }
-            }
-        });
-        animator.start();
+            });
+            animator.start();
+        }
+
     }
 
     @Override
-    public void onBottomTranslationAnimation(final int desPosition, long duration) {
-        final ObjectAnimator animator = ObjectAnimator.ofFloat(mBottomCircleView, "translationY", mBottomCircleView.getTranslationY(), desPosition);
-        animator.setDuration(duration);
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                animator.removeAllListeners();
-                if (desPosition == 0) {
-                    mBottomProgress.stop();
-                } else if (!mBottomProgress.isRunning()) {
-                    mBottomProgress.start();
-                }
-            }
-        });
-        animator.start();
+    public void onBottomTranslationAnimation(int startPosition, final int desPosition, long duration, int style) {
+
+    }
+
+    @Override
+    public void onListTopTranslationAnimationStart(int startPosition, int desPosition, long duration, int style) {
+
+    }
+
+    @Override
+    public void onListTopTranslationAnimationEnd(int startPosition, int desPosition, long duration, int style) {
+        if (desPosition == 0) {
+            mTopProgress.stop();
+        } else if (!mTopProgress.isRunning()) {
+            mTopProgress.start();
+        }
+    }
+
+    @Override
+    public void onListBottomTranslationAnimationStart(int startPosition, int desPosition, long duration, int style) {
+
+    }
+
+    @Override
+    public void onListBottomTranslationAnimationEnd(int startPosition, int desPosition, long duration, int style) {
+        if (desPosition == 0) {
+            mBottomProgress.stop();
+        } else if (!mBottomProgress.isRunning()) {
+            mBottomProgress.start();
+        }
     }
 
     @Override
