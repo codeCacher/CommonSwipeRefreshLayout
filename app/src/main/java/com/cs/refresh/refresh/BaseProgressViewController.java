@@ -79,7 +79,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         final int width = parent.getMeasuredWidth();
         int circleWidth = mTopCircleView.getMeasuredWidth();
         int circleHeight = mTopCircleView.getMeasuredHeight();
-        if (style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+        if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
             mTopCircleView.layout((width / 2 - circleWidth / 2), refreshListView.getTop() - circleHeight,
                     (width / 2 + circleWidth / 2), refreshListView.getTop());
         } else {
@@ -93,7 +93,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         int width = parent.getMeasuredWidth();
         int circleWidth = mBottomCircleView.getMeasuredWidth();
         int circleHeight = mBottomCircleView.getMeasuredHeight();
-        if (style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+        if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
             mBottomCircleView.layout((width / 2 - circleWidth / 2), (int) (refreshListView.getBottom() - circleHeight * 1.5f),
                     (width / 2 + circleWidth / 2), (int) (refreshListView.getBottom() - circleHeight * 0.5f));
         } else {
@@ -104,7 +104,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public void onTopDragScroll(int translationY, int style) {
-        if (style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+        if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
             if (mIsRefreshing) {
                 return;
             }
@@ -120,7 +120,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public void onBottomDragScroll(int translationY, int style) {
-        if (style == MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE) {
+        if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE) {
             if (!mBottomProgress.isRunning()) {
                 mBottomProgress.start();
                 mBottomCircleView.setVisibility(View.VISIBLE);
@@ -133,7 +133,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     @Override
     public void onTopTranslationAnimation(int startPosition, final int desPosition, long duration, int style) {
         mTopProgress.setArrowEnabled(false);
-        if (style == MySwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+        if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
             final ObjectAnimator animator = ObjectAnimator.ofFloat(mTopCircleView, "translationY", startPosition, desPosition);
             animator.setDuration(duration);
             animator.addListener(new AnimatorListenerAdapter() {

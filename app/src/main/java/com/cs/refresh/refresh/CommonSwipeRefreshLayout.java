@@ -20,7 +20,7 @@ import android.widget.Scroller;
  * Created by CuiShun on 2018/1/20.
  */
 
-public class MySwipeRefreshLayout extends FrameLayout implements NestedScrollingParent,
+public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrollingParent,
         NestedScrollingChild {
 
     private static final String TAG = "MySwipeRefreshLayout";
@@ -76,11 +76,11 @@ public class MySwipeRefreshLayout extends FrameLayout implements NestedScrolling
         }
     };
 
-    public MySwipeRefreshLayout(Context context) {
+    public CommonSwipeRefreshLayout(Context context) {
         this(context, null);
     }
 
-    public MySwipeRefreshLayout(Context context, AttributeSet attrs) {
+    public CommonSwipeRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }

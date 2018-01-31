@@ -11,7 +11,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.cs.refresh.refresh.BaseProgressViewController;
-import com.cs.refresh.refresh.MySwipeRefreshLayout;
+import com.cs.refresh.refresh.CommonSwipeRefreshLayout;
 import com.cs.refresh.refresh.RefreshListener;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRv;
-    private MySwipeRefreshLayout mSrl;
+    private CommonSwipeRefreshLayout mSrl;
     private MyAdapter mAdapter;
     private Handler mUIHandler = new Handler(Looper.getMainLooper());
 
@@ -77,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        mSrl.setTopStyle(MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
-        mSrl.setBottomStyle(MySwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
+        mSrl.setTopStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
+        mSrl.setBottomStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
 
         mSrl.setRefreshProgressController(new BaseProgressViewController(this));
 
