@@ -10,47 +10,167 @@ import android.view.ViewGroup;
  */
 
 public interface IRefreshProgressViewController {
+    /**
+     * 创建顶部下拉刷新的progress view
+     */
     void createTopProgressView();
 
+    /**
+     * 创建底部加载更多的progress view
+     */
     void createBottomProgressView();
 
+    /**
+     * @return 返回 {@link #createTopProgressView()} 创建的View
+     */
     View getTopProgressView();
 
+    /**
+     * @return 返回 {@link #createBottomProgressView()} 创建的View
+     */
     View getBottomProgressView();
 
+    /**
+     * measure TopView
+     *
+     * @param parent          {@link CommonSwipeRefreshLayout}
+     * @param refreshListView 列表
+     */
     void onMeasureTopView(@NonNull ViewGroup parent, @NonNull View refreshListView);
 
+    /**
+     * measure BottomView
+     *
+     * @param parent          {@link CommonSwipeRefreshLayout}
+     * @param refreshListView 列表
+     */
     void onMeasureBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView);
 
+    /**
+     * layout TopView
+     *
+     * @param parent          {@link CommonSwipeRefreshLayout}
+     * @param refreshListView 列表
+     * @param style           刷新的样式
+     */
     void layoutTopView(@NonNull ViewGroup parent, @NonNull View refreshListView, int style);
 
+    /**
+     * layout BottomView
+     *
+     * @param parent          {@link CommonSwipeRefreshLayout}
+     * @param refreshListView 列表
+     * @param style           刷新的样式
+     */
     void layoutBottomView(@NonNull ViewGroup parent, @NonNull View refreshListView, int style);
 
+    /**
+     * 当下拉的时候调用
+     *
+     * @param translationY 下拉的偏移量
+     * @param style        刷新的样式
+     */
     void onTopDragScroll(int translationY, int style);
 
+    /**
+     * 当上拉的时候调用
+     *
+     * @param translationY 上拉的偏移量
+     * @param style        刷新的样式
+     */
     void onBottomDragScroll(int translationY, int style);
 
+    /**
+     * 当顶部执行动画前调用
+     *
+     * @param startPosition 动画开始的位置
+     * @param desPosition   动画结束的位置
+     * @param duration      动画时长
+     * @param style         刷新样式
+     */
     void onTopTranslationAnimation(int startPosition, int desPosition, long duration, int style);
 
+    /**
+     * 当底部执行动画前调用
+     *
+     * @param startPosition 动画开始的位置
+     * @param desPosition   动画结束的位置
+     * @param duration      动画时长
+     * @param style         刷新样式
+     */
     void onBottomTranslationAnimation(int startPosition, int desPosition, long duration, int style);
 
+    /**
+     * 当顶部开始执行动画时调用
+     *
+     * @param startPosition 动画开始的位置
+     * @param desPosition   动画结束的位置
+     * @param duration      动画时长
+     * @param style         刷新样式
+     */
     void onListTopTranslationAnimationStart(int startPosition, int desPosition, long duration, int style);
 
+    /**
+     * 当顶部结束执行动画时调用
+     *
+     * @param startPosition 动画开始的位置
+     * @param desPosition   动画结束的位置
+     * @param duration      动画时长
+     * @param style         刷新样式
+     */
     void onListTopTranslationAnimationEnd(int startPosition, int desPosition, long duration, int style);
 
+    /**
+     * 当底部开始执行动画时调用
+     *
+     * @param startPosition 动画开始的位置
+     * @param desPosition   动画结束的位置
+     * @param duration      动画时长
+     * @param style         刷新样式
+     */
     void onListBottomTranslationAnimationStart(int startPosition, int desPosition, long duration, int style);
 
+    /**
+     * 当底部结束执行动画时调用
+     *
+     * @param startPosition 动画开始的位置
+     * @param desPosition   动画结束的位置
+     * @param duration      动画时长
+     * @param style         刷新样式
+     */
     void onListBottomTranslationAnimationEnd(int startPosition, int desPosition, long duration, int style);
 
+    /**
+     * 当开始刷新时调用
+     */
     void onStartRefresh();
 
+    /**
+     * 结束刷新时调用
+     */
     void onFinishRefresh();
 
+    /**
+     * 加载更多时调用
+     */
     void onStartLoadMore();
 
+    /**
+     * 结束加载更多时调用
+     */
     void onFinishLoadMore();
 
+    /**
+     * 设置下拉刷新的触发距离，单位DP
+     *
+     * @return 下拉刷新的触发距离，单位DP
+     */
     int getTopRefreshTrigger();
 
+    /**
+     * 设置加载更多的触发距离，单位DP
+     *
+     * @return 加载更多的触发距离，单位DP
+     */
     int getBottomHeight();
 }

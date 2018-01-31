@@ -25,9 +25,9 @@ public abstract class AbstractRefreshListView extends View implements ScrollingV
         super(context, attrs, defStyleAttr);
     }
 
-    abstract boolean canScrollUp();
+    public abstract boolean canScrollUp();
 
-    abstract boolean canScrollDown();
+    public abstract boolean canScrollDown();
 
     public abstract void removeOnScrollListener(RecyclerView.OnScrollListener mScrollListener);
 

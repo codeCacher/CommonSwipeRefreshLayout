@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SystemClock.sleep(5000);
+                SystemClock.sleep(1000);
                 List<Integer> list = new ArrayList<>();
                 Random random = new Random();
                 for (int i = 0; i < 20; i++) {

@@ -18,6 +18,7 @@ import android.widget.Scroller;
 
 /**
  * Created by CuiShun on 2018/1/20.
+ * 提供下拉刷新和上拉加载更多功能的layout
  */
 
 public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrollingParent,

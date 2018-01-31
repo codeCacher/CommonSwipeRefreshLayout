@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.animation.Animation;
 
 /**
+ * 拷贝自support包
  * Private class created to work around issues with AnimationListeners being
  * called before the animation is actually complete and support shadows on older
  * platforms.

@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 
 /**
  * Created by CuiShun on 2018/1/20.
+ * 提供的基本的progressView的Controller
+ * 如果要使用其他样式的progress,可实现IRefreshProgressViewController接口
  */
 
 public class BaseProgressViewController implements IRefreshProgressViewController {

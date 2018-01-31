@@ -4,9 +4,10 @@ import android.view.View;
 
 /**
  * Created by CuiShun on 2018/1/20.
+ * 计算辅助类
  */
 
-public class RefreshCalculateHelper {
+class RefreshCalculateHelper {
 
     static int DEFAULT_REFRESH_TRIGGER = 64;
     static int DEFAULT_BOTTOM_HEIGHT = 50;
