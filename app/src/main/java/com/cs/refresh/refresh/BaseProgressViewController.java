@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 /**
  * Created by CuiShun on 2018/1/20.
+ *
  */
 
 public class BaseProgressViewController implements IRefreshProgressViewController {
