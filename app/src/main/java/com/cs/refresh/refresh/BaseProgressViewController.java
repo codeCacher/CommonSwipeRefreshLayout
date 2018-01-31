@@ -100,8 +100,8 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         int circleWidth = mTopCircleView.getMeasuredWidth();
         int circleHeight = mTopCircleView.getMeasuredHeight();
         if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
-            mTopCircleView.layout((width / 2 - circleWidth / 2), refreshListView.getTop() - circleHeight,
-                    (width / 2 + circleWidth / 2), refreshListView.getTop());
+            mTopCircleView.layout((width / 2 - circleWidth / 2), (int) (refreshListView.getTop() - 1.1f * circleHeight),
+                    (width / 2 + circleWidth / 2), (int) (refreshListView.getTop() - 0.1f * circleHeight));
         } else {
             mTopCircleView.layout((width / 2 - circleWidth / 2), (int) (refreshListView.getTop() - 1.5f * circleHeight),
                     (width / 2 + circleWidth / 2), (int) (refreshListView.getTop() - 0.5f * circleHeight));
@@ -172,7 +172,6 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
             });
             animator.start();
         }
-
     }
 
     @Override
