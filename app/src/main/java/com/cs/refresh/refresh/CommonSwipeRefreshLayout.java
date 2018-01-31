@@ -54,6 +54,9 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
     private boolean mCancelTouch;
     private boolean mStartFling;
 
+    private boolean mIsEnableRefresh;
+    private boolean mIsEnableLoadMore;
+
     private Scroller mScroller;
     private int mMaximumVelocity;
     private int mMinimumVelocity;
@@ -63,6 +66,9 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
     RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (!mIsEnableLoadMore) {
+                return;
+            }
             if (newState == RecyclerView.SCROLL_STATE_IDLE && mStartFling) {
                 mStartFling = false;
                 mScroller.computeScrollOffset();
@@ -187,12 +193,12 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         boolean isUp = dyUnconsumed < 0 && !canTargetScrollUp();
         boolean isDown = dyUnconsumed > 0 && !canTargetScrollDown() && canTargetScrollUp() && !mIsRefreshing;
 
-        if (isUp) {
+        if (isUp && mIsEnableRefresh) {
             mIsDraggingTop = true;
             return;
         }
 
-        if (isDown) {
+        if (isDown && mIsEnableLoadMore) {
             if (mBottomStyle == REFRESH_STYPE_INTRUSIVE) {
                 startLoadMore();
             } else {
@@ -301,6 +307,14 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
     public void setBottomStyle(int style) {
         this.mBottomStyle = style;
         postInvalidate();
+    }
+
+    public void setRefreshEnable(boolean enable) {
+        this.mIsEnableRefresh = enable;
+    }
+
+    public void setLoadMoreEnable(boolean enable) {
+        this.mIsEnableLoadMore = enable;
     }
 
     private void init(Context context) {
