@@ -1,5 +1,6 @@
 package com.cs.refresh;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -80,7 +81,12 @@ public class MainActivity extends AppCompatActivity {
         mSrl.setTopStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
         mSrl.setBottomStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
 
-        mSrl.setRefreshProgressController(new BaseProgressViewController(this));
+        BaseProgressViewController baseProgressViewController = new BaseProgressViewController(this);
+        baseProgressViewController.setTopColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
+        baseProgressViewController.setBottomColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
+        baseProgressViewController.setTopProgressBackgroundColorSchemeColor(Color.GRAY);
+        baseProgressViewController.setBottomProgressBackgroundColorSchemeColor(Color.MAGENTA);
+        mSrl.setRefreshProgressController(baseProgressViewController);
 
         mSrl.setRefreshListener(new RefreshListener() {
             @Override

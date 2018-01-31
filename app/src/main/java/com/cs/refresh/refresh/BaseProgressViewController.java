@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.CircularProgressDrawable;
 import android.view.View;
@@ -30,6 +31,11 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     private boolean mIsRefreshing;
     private boolean mIsLoadingMore;
 
+    private int[] mTopProgressColors;
+    private int[] mBottomProgressColors;
+    private int mTopBackgroundColor = -1;
+    private int mBottomBackgroundColor = -1;
+
     public BaseProgressViewController(Context context) {
         this.mContext = context;
         mCircleDiameter = (int) (context.getResources().getDisplayMetrics().density * CIRCLE_DIAMETER);
@@ -41,6 +47,12 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         mTopProgress = new CircularProgressDrawable(mContext);
         mTopProgress.setStyle(CircularProgressDrawable.DEFAULT);
         mTopCircleView.setImageDrawable(mTopProgress);
+        if (mTopProgressColors != null) {
+            mTopProgress.setColorSchemeColors(mTopProgressColors);
+        }
+        if (mTopBackgroundColor != -1) {
+            mTopCircleView.setBackgroundColor(mTopBackgroundColor);
+        }
     }
 
     @Override
@@ -50,6 +62,12 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         mBottomProgress.setStyle(CircularProgressDrawable.DEFAULT);
         mBottomCircleView.setImageDrawable(mBottomProgress);
         mBottomCircleView.setVisibility(View.GONE);
+        if (mBottomProgressColors != null) {
+            mBottomProgress.setColorSchemeColors(mBottomProgressColors);
+        }
+        if (mBottomBackgroundColor != -1) {
+            mBottomCircleView.setBackgroundColor(mBottomBackgroundColor);
+        }
     }
 
     @Override
@@ -209,5 +227,21 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         mIsLoadingMore = false;
         mBottomCircleView.setVisibility(View.GONE);
         mBottomProgress.stop();
+    }
+
+    public void setTopColorSchemeColors(@ColorInt int... colors) {
+        this.mTopProgressColors = colors;
+    }
+
+    public void setBottomColorSchemeColors(@ColorInt int... colors) {
+        this.mBottomProgressColors = colors;
+    }
+
+    public void setTopProgressBackgroundColorSchemeColor(@ColorInt int color) {
+        this.mTopBackgroundColor = color;
+    }
+
+    public void setBottomProgressBackgroundColorSchemeColor(@ColorInt int color) {
+        this.mBottomBackgroundColor = color;
     }
 }
