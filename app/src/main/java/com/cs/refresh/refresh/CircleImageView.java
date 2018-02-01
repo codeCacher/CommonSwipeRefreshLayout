@@ -35,6 +35,9 @@ class CircleImageView extends AppCompatImageView {
 
     CircleImageView(Context context, int color) {
         super(context);
+        if (color == Color.TRANSPARENT) {
+            return;
+        }
         final float density = getContext().getResources().getDisplayMetrics().density;
         final int shadowYOffset = (int) (density * Y_OFFSET);
         final int shadowXOffset = (int) (density * X_OFFSET);
@@ -135,7 +138,7 @@ class CircleImageView extends AppCompatImageView {
 
         private void updateRadialGradient(int diameter) {
             mRadialGradient = new RadialGradient(diameter / 2, diameter / 2,
-                    mShadowRadius, new int[] { FILL_SHADOW_COLOR, Color.TRANSPARENT },
+                    mShadowRadius, new int[]{FILL_SHADOW_COLOR, Color.TRANSPARENT},
                     null, Shader.TileMode.CLAMP);
             mShadowPaint.setShader(mRadialGradient);
         }

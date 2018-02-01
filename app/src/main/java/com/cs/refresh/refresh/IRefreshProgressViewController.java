@@ -12,21 +12,25 @@ import android.view.ViewGroup;
 public interface IRefreshProgressViewController {
     /**
      * 创建顶部下拉刷新的progress view
+     *
+     * @param style 刷新的样式
      */
-    void createTopProgressView();
+    void createTopProgressView(int style);
 
     /**
      * 创建底部加载更多的progress view
+     *
+     * @param style 刷新的样式
      */
-    void createBottomProgressView();
+    void createBottomProgressView(int style);
 
     /**
-     * @return 返回 {@link #createTopProgressView()} 创建的View
+     * @return 返回 {@link #createTopProgressView(int style)} 创建的View
      */
     View getTopProgressView();
 
     /**
-     * @return 返回 {@link #createBottomProgressView()} 创建的View
+     * @return 返回 {@link #createBottomProgressView(int style)} 创建的View
      */
     View getBottomProgressView();
 

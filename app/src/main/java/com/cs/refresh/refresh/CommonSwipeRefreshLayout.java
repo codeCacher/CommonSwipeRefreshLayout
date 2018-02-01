@@ -259,8 +259,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
             return;
         }
         this.mProgressController = controller;
-        controller.createTopProgressView();
-        controller.createBottomProgressView();
+        mProgressController.createTopProgressView(mTopStyle);
+        mProgressController.createBottomProgressView(mBottomStyle);
         if (mProgressController.getTopProgressView() != null) {
             addView(mProgressController.getTopProgressView());
         }
@@ -308,16 +308,6 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
             startGoToLoadingMorePositionAnimation();
             startLoadMore();
         }
-    }
-
-    public void setTopStyle(int style) {
-        this.mTopStyle = style;
-        postInvalidate();
-    }
-
-    public void setBottomStyle(int style) {
-        this.mBottomStyle = style;
-        postInvalidate();
     }
 
     public void setRefreshEnable(boolean enable) {

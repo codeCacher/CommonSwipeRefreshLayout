@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.CircularProgressDrawable;
@@ -18,6 +19,8 @@ import android.view.ViewGroup;
  */
 
 public class BaseProgressViewController implements IRefreshProgressViewController {
+
+    private static final int NONE = -1;
 
     private static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
     private static final int CIRCLE_DIAMETER = 40;
@@ -35,8 +38,8 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
 
     private int[] mTopProgressColors;
     private int[] mBottomProgressColors;
-    private int mTopBackgroundColor = -1;
-    private int mBottomBackgroundColor = -1;
+    private int mTopBackgroundColor = NONE;
+    private int mBottomBackgroundColor = NONE;
 
     public BaseProgressViewController(Context context) {
         this.mContext = context;
@@ -44,7 +47,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     }
 
     @Override
-    public void createTopProgressView() {
+    public void createTopProgressView(int style) {
         mTopCircleView = new CircleImageView(mContext, CIRCLE_BG_LIGHT);
         mTopProgress = new CircularProgressDrawable(mContext);
         mTopProgress.setStyle(CircularProgressDrawable.DEFAULT);
@@ -52,14 +55,15 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         if (mTopProgressColors != null) {
             mTopProgress.setColorSchemeColors(mTopProgressColors);
         }
-        if (mTopBackgroundColor != -1) {
+        if (mTopBackgroundColor != NONE) {
             mTopCircleView.setBackgroundColor(mTopBackgroundColor);
         }
     }
 
     @Override
-    public void createBottomProgressView() {
-        mBottomCircleView = new CircleImageView(mContext, CIRCLE_BG_LIGHT);
+    public void createBottomProgressView(int style) {
+        int defaultColor = (style == CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE) ? Color.TRANSPARENT : CIRCLE_BG_LIGHT;
+        mBottomCircleView = new CircleImageView(mContext, defaultColor);
         mBottomProgress = new CircularProgressDrawable(mContext);
         mBottomProgress.setStyle(CircularProgressDrawable.DEFAULT);
         mBottomCircleView.setImageDrawable(mBottomProgress);
@@ -67,7 +71,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         if (mBottomProgressColors != null) {
             mBottomProgress.setColorSchemeColors(mBottomProgressColors);
         }
-        if (mBottomBackgroundColor != -1) {
+        if (mBottomBackgroundColor != NONE) {
             mBottomCircleView.setBackgroundColor(mBottomBackgroundColor);
         }
     }
@@ -142,7 +146,6 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     public void onBottomDragScroll(int translationY, int style) {
         if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE) {
             if (!mBottomProgress.isRunning()) {
-                mBottomProgress.setArrowEnabled(true);
                 mBottomProgress.setStartEndTrim(0, 0.8f);
                 mBottomProgress.setProgressRotation(1f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density);
                 mBottomCircleView.setVisibility(View.VISIBLE);

@@ -81,14 +81,11 @@ public class MainActivity extends AppCompatActivity {
         mSrl.setRefreshEnable(true);
         mSrl.setLoadMoreEnable(true);
 
-//        mSrl.setTopStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
-//        mSrl.setBottomStyle(CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE);
-
         BaseProgressViewController baseProgressViewController = new BaseProgressViewController(this);
         baseProgressViewController.setTopColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
         baseProgressViewController.setBottomColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
-        baseProgressViewController.setTopProgressBackgroundColorSchemeColor(Color.GRAY);
-        baseProgressViewController.setBottomProgressBackgroundColorSchemeColor(Color.MAGENTA);
+//        baseProgressViewController.setTopProgressBackgroundColorSchemeColor(Color.GRAY);
+//        baseProgressViewController.setBottomProgressBackgroundColorSchemeColor(Color.MAGENTA);
         mSrl.setRefreshProgressController(baseProgressViewController);
 
         mSrl.setRefreshListener(new RefreshListener() {
