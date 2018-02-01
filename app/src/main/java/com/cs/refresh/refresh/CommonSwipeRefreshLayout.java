@@ -274,26 +274,28 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
     }
 
     public void setRefreshing(boolean refreshing) {
-        if (!refreshing) {
+        Log.i(TAG, "setRefreshing:" + refreshing);
+        if (!refreshing && mIsRefreshing) {
             mIsRefreshing = false;
             startResetAnimation(true);
             if (mProgressController != null) {
                 mProgressController.onFinishRefresh();
             }
-        } else if (!isRefreshingOrLoadingMore()) {
+        } else if (refreshing && !isRefreshingOrLoadingMore()) {
             startGoToRefreshingPositionAnimation();
             startRefresh();
         }
     }
 
     public void setLoadingMore(boolean loadingMore) {
-        if (!loadingMore) {
+        Log.i(TAG, "setLoadingMore:" + loadingMore);
+        if (!loadingMore && mIsLoadingMore) {
             mIsLoadingMore = false;
             startResetAnimation(false);
             if (mProgressController != null) {
                 mProgressController.onFinishLoadMore();
             }
-        } else if (!isRefreshingOrLoadingMore()) {
+        } else if (loadingMore && !isRefreshingOrLoadingMore()) {
             startGoToLoadingMorePositionAnimation();
             startLoadMore();
         }
