@@ -4,7 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +17,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
+
+import com.cs.refresh.R;
 
 /**
  * Created by CuiShun on 2018/1/20.
@@ -88,7 +92,12 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
     }
 
     public CommonSwipeRefreshLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
+    }
+
+    public CommonSwipeRefreshLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        getAttrs(context, attrs, defStyleAttr);
         init(context);
     }
 
@@ -326,6 +335,13 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
                 .getScaledMaximumFlingVelocity();
         mMinimumVelocity = ViewConfiguration.get(context)
                 .getScaledMinimumFlingVelocity();
+    }
+
+    private void getAttrs(Context context, AttributeSet attrs, int defStyleAttr) {
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CommonSwipeRefreshLayout, defStyleAttr, 0);
+        mTopStyle = typedArray.getBoolean(R.styleable.CommonSwipeRefreshLayout_top_intrusive, true) ? REFRESH_STYPE_INTRUSIVE : REFRESH_STYPE_NONE_INTRUSIVE;
+        mBottomStyle = typedArray.getBoolean(R.styleable.CommonSwipeRefreshLayout_bottom_intrusive, true) ? REFRESH_STYPE_INTRUSIVE : REFRESH_STYPE_NONE_INTRUSIVE;
+        typedArray.recycle();
     }
 
     private void layoutTargetList() {

@@ -7,20 +7,22 @@
     tools:context="com.cs.refresh.MainActivity">
 
     <Button
-        android:onClick="refresh"
         android:id="@+id/refresh"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:onClick="refresh" />
 
     <com.cs.refresh.refresh.CommonSwipeRefreshLayout
         android:id="@+id/srl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:bottom_intrusive="false"
+        app:top_intrusive="false">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </com.cs.refresh.refresh.CommonSwipeRefreshLayout>
 
