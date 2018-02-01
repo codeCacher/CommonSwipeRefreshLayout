@@ -24,7 +24,7 @@ import android.widget.Scroller;
 public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrollingParent,
         NestedScrollingChild {
 
-    private static final String TAG = "MySwipeRefreshLayout";
+    private static final String TAG = CommonSwipeRefreshLayout.class.getSimpleName();
 
     /**
      * 侵入式，list不会移动，需要controller控制top和bottom的移动
