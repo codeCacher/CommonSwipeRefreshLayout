@@ -147,7 +147,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_NONE_INTRUSIVE) {
             if (!mBottomProgress.isRunning()) {
                 mBottomProgress.setStartEndTrim(0, 0.8f);
-                mBottomProgress.setProgressRotation(1f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density);
+                mBottomProgress.setProgressRotation(0.6f - 1f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density);
                 mBottomCircleView.setVisibility(View.VISIBLE);
             }
         }
