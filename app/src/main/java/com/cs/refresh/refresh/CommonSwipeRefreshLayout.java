@@ -331,6 +331,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CommonSwipeRefreshLayout, defStyleAttr, 0);
         mTopStyle = typedArray.getBoolean(R.styleable.CommonSwipeRefreshLayout_top_intrusive, true) ? REFRESH_STYPE_INTRUSIVE : REFRESH_STYPE_NONE_INTRUSIVE;
         mBottomStyle = typedArray.getBoolean(R.styleable.CommonSwipeRefreshLayout_bottom_intrusive, true) ? REFRESH_STYPE_INTRUSIVE : REFRESH_STYPE_NONE_INTRUSIVE;
+        mIsEnableRefresh = typedArray.getBoolean(R.styleable.CommonSwipeRefreshLayout_enable_refresh, true);
+        mIsEnableLoadMore = typedArray.getBoolean(R.styleable.CommonSwipeRefreshLayout_enable_load_more, true);
         typedArray.recycle();
     }
 

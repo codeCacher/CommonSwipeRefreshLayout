@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        mSrl.setRefreshEnable(true);
-        mSrl.setLoadMoreEnable(true);
+//        mSrl.setRefreshEnable(true);
+//        mSrl.setLoadMoreEnable(true);
 
         BaseProgressViewController baseProgressViewController = new BaseProgressViewController(this);
         baseProgressViewController.setTopColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);

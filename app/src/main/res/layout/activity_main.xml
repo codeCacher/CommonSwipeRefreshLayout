@@ -17,6 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:bottom_intrusive="false"
+        app:enable_load_more="true"
+        app:enable_refresh="true"
         app:top_intrusive="false">
 
         <android.support.v7.widget.RecyclerView

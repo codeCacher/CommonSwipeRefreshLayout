@@ -4,6 +4,8 @@
     <declare-styleable name="CommonSwipeRefreshLayout">
         <attr name="top_intrusive" format="boolean" />
         <attr name="bottom_intrusive" format="boolean" />
+        <attr name="enable_refresh" format="boolean" />
+        <attr name="enable_load_more" format="boolean" />
     </declare-styleable>
 
 </resources>
