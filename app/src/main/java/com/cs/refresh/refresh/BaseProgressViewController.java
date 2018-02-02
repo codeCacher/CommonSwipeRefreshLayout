@@ -208,7 +208,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     public void onListBottomTranslationAnimationEnd(int startPosition, int desPosition, long duration, int style) {
         if (desPosition == 0) {
             mBottomProgress.stop();
-            mBottomProgress.setStartEndTrim(0, 0);
+            mBottomProgress.setStartEndTrim(0, 0.8f);
         } else if (!mBottomProgress.isRunning()) {
             mBottomProgress.start();
         }
@@ -238,7 +238,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         mIsLoadingMore = false;
         mBottomCircleView.setVisibility(View.GONE);
         mBottomProgress.stop();
-        mBottomProgress.setStartEndTrim(0, 0);
+        mBottomProgress.setStartEndTrim(0, 0.8f);
     }
 
     @Override
