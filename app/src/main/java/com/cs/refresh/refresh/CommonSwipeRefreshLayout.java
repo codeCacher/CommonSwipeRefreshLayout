@@ -78,7 +78,7 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
                 mScroller.computeScrollOffset();
                 float currVelocity = mScroller.getCurrVelocity();
                 mScroller.abortAnimation();
-                if (!canTargetScrollDown() && canTargetScrollUp() && mRefreshListener != null && !mIsRefreshing) {
+                if (!canTargetScrollDown() && canTargetScrollUp() && !mIsRefreshing) {
                     long duration = mCalculateHelper.calculateBottomAnimDuration(currVelocity);
                     Log.i(TAG, "SCROLL_STATE_IDLE speed:" + currVelocity + " duration:" + duration);
                     startGoToLoadingMorePositionAnimation(duration);
@@ -238,7 +238,7 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
             }
         } else if (mIsDraggingBottom) {
             if (-mTranslationY > mCalculateHelper.getDefaultBottomHeight()
-                    && mRefreshListener != null && !mIsRefreshing && !canTargetScrollDown()) {
+                    && !mIsRefreshing && !canTargetScrollDown()) {
                 startGoToLoadingMorePositionAnimation();
             } else {
                 startResetAnimation(false);
@@ -455,22 +455,26 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
     }
 
     private void startRefresh() {
-        if (!isRefreshingOrLoadingMore() && mRefreshListener != null) {
+        if (!isRefreshingOrLoadingMore()) {
             mIsRefreshing = true;
             if (mProgressController != null) {
                 mProgressController.onStartRefresh();
             }
-            mRefreshListener.onRefresh();
+            if (mRefreshListener != null) {
+                mRefreshListener.onRefresh();
+            }
         }
     }
 
     private void startLoadMore() {
-        if (!isRefreshingOrLoadingMore() && mRefreshListener != null) {
+        if (!isRefreshingOrLoadingMore()) {
             mIsLoadingMore = true;
             if (mProgressController != null) {
                 mProgressController.onStartLoadMore();
             }
-            mRefreshListener.onLoadMore();
+            if (mRefreshListener != null) {
+                mRefreshListener.onLoadMore();
+            }
         }
     }
 

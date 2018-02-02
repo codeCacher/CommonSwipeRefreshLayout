@@ -7,10 +7,35 @@
     tools:context="com.cs.refresh.MainActivity">
 
     <Button
-        android:id="@+id/refresh"
+        android:id="@+id/startRefresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="refresh" />
+        android:onClick="startRefresh"
+        android:text="startRefresh" />
+
+    <Button
+        android:id="@+id/stopRefresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/startRefresh"
+        android:onClick="stopRefresh"
+        android:text="stopRefresh" />
+
+    <Button
+        android:id="@+id/startLoad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stopRefresh"
+        android:onClick="startLoad"
+        android:text="startLoad" />
+
+    <Button
+        android:id="@+id/stopLoad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/startLoad"
+        android:onClick="stopLoad"
+        android:text="stopLoad" />
 
     <com.cs.refresh.refresh.CommonSwipeRefreshLayout
         android:id="@+id/srl"

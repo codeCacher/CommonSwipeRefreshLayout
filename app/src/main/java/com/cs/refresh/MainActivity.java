@@ -125,8 +125,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void refresh(View view) {
+    public void startRefresh(View view) {
         mSrl.setRefreshing(true);
+    }
+
+    public void stopRefresh(View view) {
+        mSrl.setRefreshing(false);
+    }
+
+    public void startLoad(View view) {
+        mSrl.setLoadingMore(true);
+    }
+
+    public void stopLoad(View view) {
+        mSrl.setLoadingMore(false);
     }
 
     interface CallBack {
