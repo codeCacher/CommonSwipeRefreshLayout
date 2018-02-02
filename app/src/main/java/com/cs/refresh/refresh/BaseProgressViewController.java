@@ -139,7 +139,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         }
         mTopProgress.setArrowEnabled(true);
         mTopProgress.setStartEndTrim(0, 0.8f);
-        mTopProgress.setProgressRotation(1f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density);
+        mTopProgress.setProgressRotation(1f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density - 0.3f);
     }
 
     @Override
@@ -208,6 +208,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     public void onListBottomTranslationAnimationEnd(int startPosition, int desPosition, long duration, int style) {
         if (desPosition == 0) {
             mBottomProgress.stop();
+            mBottomProgress.setStartEndTrim(0, 0);
         } else if (!mBottomProgress.isRunning()) {
             mBottomProgress.start();
         }
@@ -237,6 +238,7 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
         mIsLoadingMore = false;
         mBottomCircleView.setVisibility(View.GONE);
         mBottomProgress.stop();
+        mBottomProgress.setStartEndTrim(0, 0);
     }
 
     @Override
