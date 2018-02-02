@@ -446,10 +446,10 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
                         mProgressController.onListBottomTranslationAnimationEnd(mTranslationY, 0, ANIM_DURATION, mBottomStyle);
                     }
                 }
+                mTranslationY = 0;
             }
         });
         animator.start();
-        mTranslationY = 0;
     }
 
     private void startRefresh() {
@@ -499,10 +499,10 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
                 if (mProgressController != null) {
                     mProgressController.onListTopTranslationAnimationEnd(mTranslationY, position, ANIM_DURATION, mTopStyle);
                 }
+                mTranslationY = position;
             }
         });
         animator.start();
-        mTranslationY = position;
     }
 
     private void startGoToLoadingMorePositionAnimation(final long duration) {
@@ -534,10 +534,10 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
                 if (mProgressController != null) {
                     mProgressController.onListBottomTranslationAnimationEnd(mTranslationY, position, duration, mBottomStyle);
                 }
+                mTranslationY = position;
             }
         });
         animator.start();
-        mTranslationY = position;
     }
 
     private void startGoToLoadingMorePositionAnimation() {

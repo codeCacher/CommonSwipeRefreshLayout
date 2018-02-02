@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
 
         List<Integer> list = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             list.add(i);
         }
 
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Random random = new Random();
-                SystemClock.sleep(Math.abs(random.nextInt(2000)));
+                SystemClock.sleep(Math.abs(random.nextInt(500)));
                 List<Integer> list = new ArrayList<>();
                 for (int i = 0; i < 20; i++) {
                     list.add(random.nextInt());
