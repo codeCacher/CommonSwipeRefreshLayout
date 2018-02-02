@@ -409,6 +409,8 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         if (mTranslationY == 0) {
             return;
         }
+        mIsDraggingTop = false;
+        mIsDraggingBottom = false;
         if (mProgressController != null) {
             if (isTop) {
                 mProgressController.onTopTranslationAnimation(mTranslationY, 0, ANIM_DURATION, mTopStyle);
