@@ -406,9 +406,6 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
 
     private void startResetAnimation(final boolean isTop) {
         Log.i(TAG, "startResetAnimation");
-        if (mTranslationY == 0) {
-            return;
-        }
         mIsDraggingTop = false;
         mIsDraggingBottom = false;
         if (mProgressController != null) {
@@ -425,7 +422,7 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
         }
 
         mCancelTouch = true;
-        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", -mTranslationY, 0);
+        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", this.getScrollY(), 0);
         animator.setDuration(ANIM_DURATION);
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -490,7 +487,7 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
             return;
         }
         mCancelTouch = true;
-        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", -mTranslationY, -position);
+        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", this.getScrollY(), -position);
         animator.setDuration(ANIM_DURATION);
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -524,7 +521,7 @@ public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrol
             return;
         }
         mCancelTouch = true;
-        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", -mTranslationY, -position);
+        final ObjectAnimator animator = ObjectAnimator.ofInt(this, "scrollY", this.getScrollY(), -position);
         animator.setDuration(duration);
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
