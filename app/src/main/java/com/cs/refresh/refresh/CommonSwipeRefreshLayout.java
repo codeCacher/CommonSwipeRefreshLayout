@@ -111,9 +111,20 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
     }
 
     @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        if (mProgressController != null && mProgressController.getTopProgressView() != null) {
+            bringChildToFront(mProgressController.getTopProgressView());
+        }
+        if (mProgressController != null && mProgressController.getBottomProgressView() != null) {
+            bringChildToFront(mProgressController.getBottomProgressView());
+        }
+    }
+
+    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
         setTarget();
-        layoutTargetList();
         layoutTopView();
         layoutBottomView();
     }
@@ -333,16 +344,6 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         mIsEnableRefresh = typedArray.getBoolean(R.styleable.CommonSwipeRefreshLayout_enable_refresh, true);
         mIsEnableLoadMore = typedArray.getBoolean(R.styleable.CommonSwipeRefreshLayout_enable_load_more, true);
         typedArray.recycle();
-    }
-
-    private void layoutTargetList() {
-        int width = getMeasuredWidth();
-        int height = getMeasuredHeight();
-        int childLeft = getPaddingLeft();
-        int childTop = getPaddingTop();
-        int childWidth = width - getPaddingLeft() - getPaddingRight();
-        int childHeight = height - getPaddingTop() - getPaddingBottom();
-        mTarget.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
     }
 
     private void layoutTopView() {
