@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.FrameLayout;
 import android.widget.Scroller;
 
 import com.cs.refresh.R;
@@ -25,7 +24,7 @@ import com.cs.refresh.R;
  * 提供下拉刷新和上拉加载更多功能的layout
  */
 
-public class CommonSwipeRefreshLayout extends FrameLayout implements NestedScrollingParent,
+public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements NestedScrollingParent,
         NestedScrollingChild {
 
     private static final String TAG = CommonSwipeRefreshLayout.class.getSimpleName();
