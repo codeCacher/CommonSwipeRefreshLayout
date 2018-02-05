@@ -41,42 +41,6 @@ public class MainActivity extends AppCompatActivity {
         mRv.setAdapter(mAdapter);
         mAdapter.setData(list);
 
-//        mSrl.setOnRefreshListener(new BaseSwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                Log.i("cuishun", "onRefresh");
-//                getList(new CallBack() {
-//                    @Override
-//                    public void onCallBack(final List<Integer> list) {
-//                        mUIHandler.post(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mAdapter.setData(list);
-//                                mSrl.setRefreshing(false);
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onLoadMore() {
-//                Log.i("cuishun", "onLoadMore");
-//                getList(new CallBack() {
-//                    @Override
-//                    public void onCallBack(final List<Integer> list) {
-//                        mUIHandler.post(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mAdapter.addData(list);
-//                                mSrl.setLoadingMore(false);
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//        });
-
 //        mSrl.setRefreshEnable(true);
 //        mSrl.setLoadMoreEnable(true);
 
@@ -117,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
                         mUIHandler.post(new Runnable() {
                             @Override
                             public void run() {
+                                if (list.size() == 0) {
+                                    mSrl.setHasMoreData(false);
+                                }
                                 mAdapter.addData(list);
                                 mSrl.setLoadingMore(false);
                             }
@@ -125,8 +92,6 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
-
-//        mSrl.setHasMoreData(false);
     }
 
     public void startRefresh(View view) {
@@ -156,6 +121,10 @@ public class MainActivity extends AppCompatActivity {
                 Random random = new Random();
                 SystemClock.sleep(2000);
                 List<Integer> list = new ArrayList<>();
+                if (mAdapter.getItemCount() >= 100) {
+                    callBack.onCallBack(list);
+                    return;
+                }
                 for (int i = 0; i < 20; i++) {
                     list.add(random.nextInt());
                 }
