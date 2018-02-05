@@ -25,6 +25,20 @@ public interface IRefreshProgressViewController {
     void createBottomProgressView(int style);
 
     /**
+     * 将底部刷新View设置为没有更多数据的提示
+     *
+     * @param style 刷新的样式
+     */
+    void setBottomNoMoreDataView(int style);
+
+    /**
+     * 将底部刷新View设置为正在刷新的提示
+     *
+     * @param style 刷新的样式
+     */
+    void setBottomLoadingView(int style);
+
+    /**
      * @return 返回 {@link #createTopProgressView(int style)} 创建的View
      */
     View getTopProgressView();

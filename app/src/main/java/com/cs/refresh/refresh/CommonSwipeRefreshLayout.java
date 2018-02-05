@@ -25,7 +25,7 @@ import com.cs.refresh.R;
  */
 
 public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements NestedScrollingParent,
-        NestedScrollingChild {
+        NestedScrollingChild, ISwipeRefreshLayout {
 
     private static final String TAG = CommonSwipeRefreshLayout.class.getSimpleName();
 
@@ -59,6 +59,8 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
 
     private boolean mIsEnableRefresh;
     private boolean mIsEnableLoadMore;
+
+    private boolean mHasMoreData;
 
     private Scroller mScroller;
     private int mMaximumVelocity;
@@ -229,7 +231,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         if (mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE) {
             topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
         }
-        if (mTranslationY != topTranslationY && !mIsRefreshing && !mIsLoadingMore) {
+        if (mTranslationY != topTranslationY && !mIsRefreshing && !mIsLoadingMore && mHasMoreData) {
             mTranslationY = topTranslationY;
             this.setScrollY(-mTranslationY);
         }
@@ -264,6 +266,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         return mCancelTouch || super.onInterceptTouchEvent(ev);
     }
 
+    @Override
     public void setRefreshProgressController(IRefreshProgressViewController controller) {
         if (controller == null) {
             return;
@@ -288,10 +291,12 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         postInvalidate();
     }
 
+    @Override
     public void setRefreshListener(RefreshListener listener) {
         this.mRefreshListener = listener;
     }
 
+    @Override
     public void setRefreshing(boolean refreshing) {
         Log.i(TAG, "setRefreshing:" + refreshing);
         if (!refreshing && mIsRefreshing) {
@@ -306,6 +311,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         }
     }
 
+    @Override
     public void setLoadingMore(boolean loadingMore) {
         Log.i(TAG, "setLoadingMore:" + loadingMore);
         if (!loadingMore && mIsLoadingMore) {
@@ -320,15 +326,31 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         }
     }
 
+    @Override
+    public void setHasMoreData(boolean hasMoreData) {
+        this.mHasMoreData = hasMoreData;
+        if (mProgressController == null) {
+            return;
+        }
+        if (hasMoreData) {
+            mProgressController.setBottomLoadingView(mBottomStyle);
+        } else {
+            mProgressController.setBottomNoMoreDataView(mBottomStyle);
+        }
+    }
+
+    @Override
     public void setRefreshEnable(boolean enable) {
         this.mIsEnableRefresh = enable;
     }
 
+    @Override
     public void setLoadMoreEnable(boolean enable) {
         this.mIsEnableLoadMore = enable;
     }
 
     private void init(Context context) {
+        mHasMoreData = true;
         mCalculateHelper = new RefreshCalculateHelper(this);
         mScroller = new Scroller(context);
         mMaximumVelocity = ViewConfiguration.get(context)
@@ -467,11 +489,11 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
 
     private void startLoadMore() {
         if (!isRefreshingOrLoadingMore()) {
-            mIsLoadingMore = true;
+            mIsLoadingMore = mHasMoreData;
             if (mProgressController != null) {
                 mProgressController.onStartLoadMore();
             }
-            if (mRefreshListener != null) {
+            if (mRefreshListener != null && mHasMoreData) {
                 mRefreshListener.onLoadMore();
             }
         }

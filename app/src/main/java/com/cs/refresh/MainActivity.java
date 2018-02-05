@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+
+//        mSrl.setHasMoreData(false);
     }
 
     public void startRefresh(View view) {
@@ -152,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Random random = new Random();
-                SystemClock.sleep(20000);
+                SystemClock.sleep(2000);
                 List<Integer> list = new ArrayList<>();
                 for (int i = 0; i < 20; i++) {
                     list.add(random.nextInt());

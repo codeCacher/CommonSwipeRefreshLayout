@@ -77,6 +77,16 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     }
 
     @Override
+    public void setBottomNoMoreDataView(int style) {
+
+    }
+
+    @Override
+    public void setBottomLoadingView(int style) {
+
+    }
+
+    @Override
     public View getTopProgressView() {
         return mTopCircleView;
     }

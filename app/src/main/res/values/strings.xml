@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">refresh</string>
     <string name="loading">loading</string>
+    <string name="no_more_data">no more</string>
 </resources>

@@ -11,6 +11,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.cs.refresh.R;
 
@@ -35,6 +36,7 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
     private AnimationDrawable mAnimationDrawable;
     private RotateAnimation mLoadingAnimation;
     private ImageView ivLoading;
+    private TextView tvLoading;
 
     public CubeProgressViewController(Context context) {
         this.mContext = context;
@@ -57,6 +59,19 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
         }
         mBottomView = LayoutInflater.from(mContext).inflate(R.layout.bottom_loading_layout, null, false);
         ivLoading = mBottomView.findViewById(R.id.iv_loading);
+        tvLoading = mBottomView.findViewById(R.id.tv_loading);
+    }
+
+    @Override
+    public void setBottomNoMoreDataView(int style) {
+        ivLoading.setVisibility(View.GONE);
+        tvLoading.setText(R.string.no_more_data);
+    }
+
+    @Override
+    public void setBottomLoadingView(int style) {
+        ivLoading.setVisibility(View.VISIBLE);
+        tvLoading.setText(R.string.loading);
     }
 
     @Override
