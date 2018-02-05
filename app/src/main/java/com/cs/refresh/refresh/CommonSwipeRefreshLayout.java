@@ -38,7 +38,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
      */
     public static final int REFRESH_STYPE_NONE_INTRUSIVE = 1;
 
-    private static final long ANIM_DURATION = 200;
+    private static final long ANIM_DURATION = 300;
 
     private View mTarget;
     private IRefreshProgressViewController mProgressController;
@@ -244,7 +244,6 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
             if (mTranslationY > mCalculateHelper.getDefaultRefreshTrigger()
                     && mRefreshListener != null && !mIsLoadingMore) {
                 startGoToRefreshingPositionAnimation();
-                startRefresh();
             } else {
                 startResetAnimation(true);
             }
@@ -312,7 +311,6 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
             }
         } else if (refreshing && !isRefreshingOrLoadingMore()) {
             startGoToRefreshingPositionAnimation();
-            startRefresh();
         }
     }
 
@@ -327,7 +325,6 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
             }
         } else if (loadingMore && !isRefreshingOrLoadingMore() && mHasMoreData) {
             startGoToLoadingMorePositionAnimation();
-            startLoadMore();
         }
     }
 
@@ -532,6 +529,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
                     mProgressController.onListTopTranslationAnimationEnd(mTranslationY, position, ANIM_DURATION, mTopStyle);
                 }
                 mTranslationY = position;
+                startRefresh();
             }
         });
         animator.start();
@@ -562,11 +560,11 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
             public void onAnimationEnd(Animator animation) {
                 mCancelTouch = false;
                 animator.removeAllListeners();
-                startLoadMore();
                 if (mProgressController != null) {
                     mProgressController.onListBottomTranslationAnimationEnd(mTranslationY, position, duration, mBottomStyle);
                 }
                 mTranslationY = position;
+                startLoadMore();
             }
         });
         animator.start();

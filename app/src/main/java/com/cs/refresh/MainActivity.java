@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Random random = new Random();
-                SystemClock.sleep(2000);
+                SystemClock.sleep(100);
                 List<Integer> list = new ArrayList<>();
                 if (mAdapter.getItemCount() >= 100) {
                     callBack.onCallBack(list);

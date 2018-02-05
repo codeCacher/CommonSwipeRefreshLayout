@@ -169,7 +169,9 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public void onListTopTranslationAnimationStart(int startPosition, int desPosition, long duration, int style) {
-
+        if (startPosition == 0) {
+            mTopView.setImageResource(R.drawable.pulling_frame5);
+        }
     }
 
     @Override

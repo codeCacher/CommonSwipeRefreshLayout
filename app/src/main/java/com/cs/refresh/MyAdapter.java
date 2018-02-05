@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by Administrator on 2018/1/16.
@@ -50,7 +49,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         holder.mTV.setText(String.valueOf(mData.get(position)));
-        holder.mLl.setBackgroundColor(mData.get(position));
+        holder.mLl.setBackgroundColor(0);
     }
 
     @Override
