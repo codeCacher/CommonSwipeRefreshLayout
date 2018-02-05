@@ -225,7 +225,7 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public int getTopRefreshTrigger() {
-        return VIEW_SIZE * 2;
+        return (int) (VIEW_SIZE * 1.5f);
     }
 
     @Override
