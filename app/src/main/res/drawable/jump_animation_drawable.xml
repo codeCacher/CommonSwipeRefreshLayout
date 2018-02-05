@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item
+        android:drawable="@drawable/refreshing_frame1"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame2"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame3"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame4"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame5"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame6"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame7"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame8"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame9"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame10"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame11"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame12"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame13"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame14"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame15"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame16"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame17"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame18"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame19"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame20"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame21"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame22"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame23"
+        android:duration="40" />
+    <item
+        android:drawable="@drawable/refreshing_frame24"
+        android:duration="40" />
+</animation-list>

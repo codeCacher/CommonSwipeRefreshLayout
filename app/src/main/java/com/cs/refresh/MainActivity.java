@@ -1,6 +1,5 @@
 package com.cs.refresh;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,8 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import com.cs.refresh.refresh.BaseProgressViewController;
 import com.cs.refresh.refresh.CommonSwipeRefreshLayout;
+import com.cs.refresh.refresh.CubeProgressViewController;
 import com.cs.refresh.refresh.RefreshListener;
 
 import java.util.ArrayList;
@@ -81,12 +80,15 @@ public class MainActivity extends AppCompatActivity {
 //        mSrl.setRefreshEnable(true);
 //        mSrl.setLoadMoreEnable(true);
 
-        BaseProgressViewController baseProgressViewController = new BaseProgressViewController(this);
-        baseProgressViewController.setTopColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
-        baseProgressViewController.setBottomColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
+//        BaseProgressViewController baseProgressViewController = new BaseProgressViewController(this);
+//        baseProgressViewController.setTopColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
+//        baseProgressViewController.setBottomColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
 //        baseProgressViewController.setTopProgressBackgroundColorSchemeColor(Color.GRAY);
 //        baseProgressViewController.setBottomProgressBackgroundColorSchemeColor(Color.MAGENTA);
-        mSrl.setRefreshProgressController(baseProgressViewController);
+//        mSrl.setRefreshProgressController(baseProgressViewController);
+
+        CubeProgressViewController cubeProgressViewController = new CubeProgressViewController(this);
+        mSrl.setRefreshProgressController(cubeProgressViewController);
 
         mSrl.setRefreshListener(new RefreshListener() {
             @Override
@@ -150,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Random random = new Random();
-                SystemClock.sleep(2000);
+                SystemClock.sleep(20000);
                 List<Integer> list = new ArrayList<>();
                 for (int i = 0; i < 20; i++) {
                     list.add(random.nextInt());
