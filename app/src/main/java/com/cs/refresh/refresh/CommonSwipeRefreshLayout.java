@@ -325,7 +325,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
             if (mProgressController != null) {
                 mProgressController.onFinishLoadMore();
             }
-        } else if (loadingMore && !isRefreshingOrLoadingMore()) {
+        } else if (loadingMore && !isRefreshingOrLoadingMore() && mHasMoreData) {
             startGoToLoadingMorePositionAnimation();
             startLoadMore();
         }
