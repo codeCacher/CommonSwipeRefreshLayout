@@ -288,6 +288,11 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         if (bottomHeight > 0) {
             mCalculateHelper.setDefaultBottomHeight(bottomHeight);
         }
+        if (mHasMoreData) {
+            mProgressController.setBottomLoadingView(mBottomStyle);
+        } else {
+            mProgressController.setBottomNoMoreDataView(mBottomStyle);
+        }
         postInvalidate();
     }
 

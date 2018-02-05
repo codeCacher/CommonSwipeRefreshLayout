@@ -33,6 +33,8 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
     private boolean mIsRefreshing;
     private boolean mIsLoadingMore;
 
+    private boolean mHasMoreData;
+
     private AnimationDrawable mAnimationDrawable;
     private RotateAnimation mLoadingAnimation;
     private ImageView ivLoading;
@@ -40,6 +42,7 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
 
     public CubeProgressViewController(Context context) {
         this.mContext = context;
+        mHasMoreData = true;
         mViewSize = (int) (context.getResources().getDisplayMetrics().density * VIEW_SIZE);
     }
 
@@ -64,12 +67,14 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public void setBottomNoMoreDataView(int style) {
+        this.mHasMoreData = false;
         ivLoading.setVisibility(View.GONE);
         tvLoading.setText(R.string.no_more_data);
     }
 
     @Override
     public void setBottomLoadingView(int style) {
+        this.mHasMoreData = true;
         ivLoading.setVisibility(View.VISIBLE);
         tvLoading.setText(R.string.loading);
     }
@@ -145,10 +150,11 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
 
     @Override
     public void onBottomDragScroll(int translationY, int style) {
-        if (ivLoading.getAnimation() != null && ivLoading.getAnimation().isInitialized()) {
+        if (mIsLoadingMore || !mHasMoreData) {
             return;
         }
-        startLoadingMoreAnim();
+        int rotation = (int) (360f * translationY / RefreshCalculateHelper.MAX_TOP_DRAG_LENGTH / mContext.getResources().getDisplayMetrics().density);
+        ivLoading.setRotation(rotation);
     }
 
     @Override
@@ -203,6 +209,9 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
     @Override
     public void onStartLoadMore() {
         mIsLoadingMore = true;
+        if (!mHasMoreData) {
+            return;
+        }
         startLoadingMoreAnim();
     }
 
