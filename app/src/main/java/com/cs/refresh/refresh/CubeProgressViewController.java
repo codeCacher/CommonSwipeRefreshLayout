@@ -3,6 +3,7 @@ package com.cs.refresh.refresh;
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -158,12 +159,22 @@ public class CubeProgressViewController implements IRefreshProgressViewControlle
     }
 
     @Override
-    public void onTopTranslationAnimation(int startPosition, final int desPosition, long duration, int style) {
+    public void onTopResetAnimation(int startPosition, long duration, int style) {
 
     }
 
     @Override
-    public void onBottomTranslationAnimation(int startPosition, final int desPosition, long duration, int style) {
+    public void onBottomResetAnimation(int startPosition, long duration, int style) {
+
+    }
+
+    @Override
+    public void onTopGoToRefreshAnimation(int startPosition, int desPosition, long duration, int style, @Nullable CommonSwipeRefreshLayout.RefreshRunnable refreshRunnable) {
+
+    }
+
+    @Override
+    public void onBottomGoToLoadMoreAnimation(int startPosition, int desPosition, long duration, int style, @Nullable CommonSwipeRefreshLayout.LoadMoreRunnable loadMoreRunnable) {
 
     }
 

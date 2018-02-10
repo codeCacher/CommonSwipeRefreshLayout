@@ -1,6 +1,7 @@
 package com.cs.refresh.refresh;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -99,24 +100,44 @@ public interface IRefreshProgressViewController {
     void onBottomDragScroll(int translationY, int style);
 
     /**
-     * 当顶部执行动画前调用
+     * 当顶部执行复位动画时调用
      *
-     * @param startPosition 动画开始的位置
-     * @param desPosition   动画结束的位置
-     * @param duration      动画时长
+     * @param startPosition 开始位置（结束位置为0）
+     * @param duration      动画执行时间
      * @param style         刷新样式
      */
-    void onTopTranslationAnimation(int startPosition, int desPosition, long duration, int style);
+    void onTopResetAnimation(int startPosition, long duration, int style);
 
     /**
-     * 当底部执行动画前调用
+     * 当底部执行复位动画时调用
      *
-     * @param startPosition 动画开始的位置
-     * @param desPosition   动画结束的位置
-     * @param duration      动画时长
+     * @param startPosition 开始位置（结束位置为0）
+     * @param duration      动画执行时间
      * @param style         刷新样式
      */
-    void onBottomTranslationAnimation(int startPosition, int desPosition, long duration, int style);
+    void onBottomResetAnimation(int startPosition, long duration, int style);
+
+    /**
+     * 开始刷新执行动画时调用
+     *
+     * @param startPosition   开始位置
+     * @param desPosition     结束位置
+     * @param duration        执行时间
+     * @param style           刷新样式
+     * @param refreshRunnable refreshRunnable.run()执行刷新
+     */
+    void onTopGoToRefreshAnimation(int startPosition, int desPosition, long duration, int style, @Nullable CommonSwipeRefreshLayout.RefreshRunnable refreshRunnable);
+
+    /**
+     * 开始加载更多执行动画时调用
+     *
+     * @param startPosition    开始位置
+     * @param desPosition      结束位置
+     * @param duration         执行时间
+     * @param style            刷新样式
+     * @param loadMoreRunnable loadMoreRunnable。run()执行加载更多
+     */
+    void onBottomGoToLoadMoreAnimation(int startPosition, int desPosition, long duration, int style, @Nullable CommonSwipeRefreshLayout.LoadMoreRunnable loadMoreRunnable);
 
     /**
      * 当顶部开始执行动画时调用

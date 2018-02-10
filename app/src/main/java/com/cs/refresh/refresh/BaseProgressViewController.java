@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.CircularProgressDrawable;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -164,10 +165,32 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     }
 
     @Override
-    public void onTopTranslationAnimation(int startPosition, final int desPosition, long duration, int style) {
+    public void onTopResetAnimation(int startPosition, long duration, int style) {
         mTopProgress.setArrowEnabled(false);
         if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
-            if (mIsRefreshing && desPosition != 0) {
+            final ObjectAnimator animator = ObjectAnimator.ofFloat(mTopCircleView, "translationY", startPosition, 0);
+            animator.setDuration(duration);
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    animator.removeAllListeners();
+                    mTopProgress.stop();
+                }
+            });
+            animator.start();
+        }
+    }
+
+    @Override
+    public void onBottomResetAnimation(int startPosition, long duration, int style) {
+
+    }
+
+    @Override
+    public void onTopGoToRefreshAnimation(int startPosition, int desPosition, long duration, int style, @Nullable final CommonSwipeRefreshLayout.RefreshRunnable refreshRunnable) {
+        mTopProgress.setArrowEnabled(false);
+        if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE) {
+            if (mIsRefreshing) {
                 return;
             }
             final ObjectAnimator animator = ObjectAnimator.ofFloat(mTopCircleView, "translationY", startPosition, desPosition);
@@ -176,10 +199,11 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     animator.removeAllListeners();
-                    if (desPosition == 0) {
-                        mTopProgress.stop();
-                    } else if (!mTopProgress.isRunning()) {
+                    if (!mTopProgress.isRunning()) {
                         mTopProgress.start();
+                    }
+                    if (refreshRunnable != null) {
+                        refreshRunnable.run();
                     }
                 }
             });
@@ -188,8 +212,10 @@ public class BaseProgressViewController implements IRefreshProgressViewControlle
     }
 
     @Override
-    public void onBottomTranslationAnimation(int startPosition, final int desPosition, long duration, int style) {
-
+    public void onBottomGoToLoadMoreAnimation(int startPosition, int desPosition, long duration, int style, @Nullable CommonSwipeRefreshLayout.LoadMoreRunnable loadMoreRunnable) {
+        if (style == CommonSwipeRefreshLayout.REFRESH_STYPE_INTRUSIVE && loadMoreRunnable != null) {
+            loadMoreRunnable.run();
+        }
     }
 
     @Override

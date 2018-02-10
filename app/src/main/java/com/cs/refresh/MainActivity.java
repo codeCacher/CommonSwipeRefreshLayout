@@ -10,8 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import com.cs.refresh.refresh.BaseProgressViewController;
 import com.cs.refresh.refresh.CommonSwipeRefreshLayout;
-import com.cs.refresh.refresh.CubeProgressViewController;
 import com.cs.refresh.refresh.RefreshListener;
 
 import java.util.ArrayList;
@@ -44,15 +44,15 @@ public class MainActivity extends AppCompatActivity {
 //        mSrl.setRefreshEnable(true);
 //        mSrl.setLoadMoreEnable(true);
 
-//        BaseProgressViewController baseProgressViewController = new BaseProgressViewController(this);
+        BaseProgressViewController baseProgressViewController = new BaseProgressViewController(this);
 //        baseProgressViewController.setTopColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
 //        baseProgressViewController.setBottomColorSchemeColors(Color.RED, Color.BLUE, Color.GREEN, Color.BLACK);
 //        baseProgressViewController.setTopProgressBackgroundColorSchemeColor(Color.GRAY);
 //        baseProgressViewController.setBottomProgressBackgroundColorSchemeColor(Color.MAGENTA);
-//        mSrl.setRefreshProgressController(baseProgressViewController);
+        mSrl.setRefreshProgressController(baseProgressViewController);
 
-        CubeProgressViewController cubeProgressViewController = new CubeProgressViewController(this);
-        mSrl.setRefreshProgressController(cubeProgressViewController);
+//        CubeProgressViewController cubeProgressViewController = new CubeProgressViewController(this);
+//        mSrl.setRefreshProgressController(cubeProgressViewController);
 
         mSrl.setRefreshListener(new RefreshListener() {
             @Override
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Random random = new Random();
-                SystemClock.sleep(100);
+                SystemClock.sleep(2000);
                 List<Integer> list = new ArrayList<>();
                 if (mAdapter.getItemCount() >= 100) {
                     callBack.onCallBack(list);

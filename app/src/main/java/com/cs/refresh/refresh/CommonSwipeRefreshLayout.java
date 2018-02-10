@@ -30,7 +30,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
     private static final String TAG = CommonSwipeRefreshLayout.class.getSimpleName();
 
     /**
-     * 侵入式，list不会移动，需要controller控制top和bottom的移动
+     * 侵入式，list不会移动，需要controller控制top和bottom的移动和刷新时机
      */
     public static final int REFRESH_STYPE_INTRUSIVE = 0;
     /**
@@ -67,6 +67,9 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
     private int mMinimumVelocity;
 
     private RefreshCalculateHelper mCalculateHelper;
+
+    private LoadMoreRunnable mLoadMoreRunnable;
+    private RefreshRunnable mRefreshRunnable;
 
     RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -359,6 +362,12 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
                 .getScaledMaximumFlingVelocity();
         mMinimumVelocity = ViewConfiguration.get(context)
                 .getScaledMinimumFlingVelocity();
+        if (mTopStyle == REFRESH_STYPE_INTRUSIVE) {
+            mRefreshRunnable = new RefreshRunnable();
+        }
+        if (mBottomStyle == REFRESH_STYPE_INTRUSIVE) {
+            mLoadMoreRunnable = new LoadMoreRunnable();
+        }
     }
 
     private void getAttrs(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -434,9 +443,9 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         mIsDraggingBottom = false;
         if (mProgressController != null) {
             if (isTop) {
-                mProgressController.onTopTranslationAnimation(mTranslationY, 0, ANIM_DURATION, mTopStyle);
+                mProgressController.onTopResetAnimation(mTranslationY, ANIM_DURATION, mTopStyle);
             } else {
-                mProgressController.onBottomTranslationAnimation(mTranslationY, 0, ANIM_DURATION, mBottomStyle);
+                mProgressController.onBottomResetAnimation(mTranslationY, ANIM_DURATION, mBottomStyle);
             }
         }
         if ((isTop && mTopStyle == REFRESH_STYPE_INTRUSIVE) ||
@@ -504,7 +513,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
     private void startGoToRefreshingPositionAnimation() {
         final int position = mCalculateHelper.getDefaultRefreshTrigger();
         if (mProgressController != null) {
-            mProgressController.onTopTranslationAnimation(mTranslationY, position, ANIM_DURATION, mTopStyle);
+            mProgressController.onTopGoToRefreshAnimation(mTranslationY, position, ANIM_DURATION, mTopStyle, mRefreshRunnable);
         }
         if (mTopStyle == REFRESH_STYPE_INTRUSIVE) {
             mTranslationY = position;
@@ -538,11 +547,10 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
     private void startGoToLoadingMorePositionAnimation(final long duration) {
         final int position = -mCalculateHelper.getDefaultBottomHeight();
         if (mProgressController != null) {
-            mProgressController.onBottomTranslationAnimation(mTranslationY, position, duration, mBottomStyle);
+            mProgressController.onBottomGoToLoadMoreAnimation(mTranslationY, position, duration, mBottomStyle, mLoadMoreRunnable);
         }
         if (mBottomStyle == REFRESH_STYPE_INTRUSIVE) {
             mTranslationY = position;
-            startLoadMore();
             return;
         }
         mCancelTouch = true;
@@ -572,5 +580,27 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
 
     private void startGoToLoadingMorePositionAnimation() {
         startGoToLoadingMorePositionAnimation(ANIM_DURATION);
+    }
+
+    public class RefreshRunnable implements Runnable {
+
+        private RefreshRunnable() {
+        }
+
+        @Override
+        public void run() {
+            CommonSwipeRefreshLayout.this.startRefresh();
+        }
+    }
+
+    public class LoadMoreRunnable implements Runnable {
+
+        private LoadMoreRunnable() {
+        }
+
+        @Override
+        public void run() {
+            CommonSwipeRefreshLayout.this.startLoadMore();
+        }
     }
 }
