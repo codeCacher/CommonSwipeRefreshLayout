@@ -3,10 +3,11 @@ package com.cs.refresh.refresh;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.NestedScrollingChild2;
 import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -17,10 +18,10 @@ import android.widget.FrameLayout;
  */
 
 public class NestScrollViewGroup extends FrameLayout implements NestedScrollingParent,
-        NestedScrollingChild {
+        NestedScrollingChild2 {
 
-    private NestedScrollingParentHelper mNestedScrollingParentHelper;
-    private NestedScrollingChildHelper mNestedScrollingChildHelper;
+    private NestedScrollingParentHelper mParentHelper;
+    private NestedScrollingChildHelper mChildHelper;
 
     public NestScrollViewGroup(@NonNull Context context) {
         this(context, null);
@@ -32,80 +33,107 @@ public class NestScrollViewGroup extends FrameLayout implements NestedScrollingP
 
     public NestScrollViewGroup(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mNestedScrollingParentHelper = new NestedScrollingParentHelper(this);
-        mNestedScrollingChildHelper = new NestedScrollingChildHelper(this);
+        mParentHelper = new NestedScrollingParentHelper(this);
+        mChildHelper = new NestedScrollingChildHelper(this);
+    }
+
+    @Override
+    public boolean startNestedScroll(int axes, int type) {
+        return mChildHelper.startNestedScroll(axes, type);
+    }
+
+    @Override
+    public void stopNestedScroll(int type) {
+        mChildHelper.stopNestedScroll(type);
+    }
+
+    @Override
+    public boolean hasNestedScrollingParent(int type) {
+        return mChildHelper.hasNestedScrollingParent(type);
+    }
+
+    @Override
+    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, @Nullable int[] offsetInWindow, int type) {
+        return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                offsetInWindow, type);
+    }
+
+    @Override
+    public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed, @Nullable int[] offsetInWindow, int type) {
+        return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow, type);
     }
 
     @Override
     public void setNestedScrollingEnabled(boolean enabled) {
-        mNestedScrollingChildHelper.setNestedScrollingEnabled(enabled);
+        mChildHelper.setNestedScrollingEnabled(enabled);
     }
 
     @Override
     public boolean isNestedScrollingEnabled() {
-        return mNestedScrollingChildHelper.isNestedScrollingEnabled();
+        return mChildHelper.isNestedScrollingEnabled();
     }
 
     @Override
     public boolean startNestedScroll(int axes) {
-        return mNestedScrollingChildHelper.startNestedScroll(axes);
+        return mChildHelper.startNestedScroll(axes);
     }
 
     @Override
     public void stopNestedScroll() {
-        mNestedScrollingChildHelper.stopNestedScroll();
+        mChildHelper.stopNestedScroll();
     }
 
     @Override
     public boolean hasNestedScrollingParent() {
-        return mNestedScrollingChildHelper.hasNestedScrollingParent();
+        return mChildHelper.hasNestedScrollingParent();
     }
 
     @Override
     public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, @Nullable int[] offsetInWindow) {
-        return mNestedScrollingChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed,
-                dxUnconsumed, dyUnconsumed, offsetInWindow);
+        return mChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
+                offsetInWindow);
     }
 
     @Override
     public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed, @Nullable int[] offsetInWindow) {
-        return mNestedScrollingChildHelper.dispatchNestedPreScroll(
-                dx, dy, consumed, offsetInWindow);
+        return mChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
     }
 
     @Override
     public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
-        return mNestedScrollingChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+        return mChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
     @Override
     public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
-        return mNestedScrollingChildHelper.dispatchNestedPreFling(velocityX, velocityY);
+        return mChildHelper.dispatchNestedPreFling(velocityX, velocityY);
     }
 
     @Override
     public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int axes) {
-        return true;
+        return (axes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
     }
 
     @Override
     public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
-        mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
+        mParentHelper.onNestedScrollAccepted(child, target, axes);
+        startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL);
     }
 
     @Override
     public void onStopNestedScroll(@NonNull View target) {
-        mNestedScrollingParentHelper.onStopNestedScroll(target);
+        mParentHelper.onStopNestedScroll(target);
+        stopNestedScroll();
     }
 
     @Override
     public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-
+        dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
     }
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
-
+        dispatchNestedPreScroll(dx, dy, consumed, null);
     }
 
     @Override
@@ -120,6 +148,6 @@ public class NestScrollViewGroup extends FrameLayout implements NestedScrollingP
 
     @Override
     public int getNestedScrollAxes() {
-        return mNestedScrollingParentHelper.getNestedScrollAxes();
+        return mParentHelper.getNestedScrollAxes();
     }
 }

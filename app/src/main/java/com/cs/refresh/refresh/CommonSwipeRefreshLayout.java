@@ -148,7 +148,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
     @Override
     public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
         Log.i(TAG, "onNestedPreFling");
-        return mIsDraggingTop || mIsDraggingBottom;
+        return super.onNestedPreFling(target, velocityX, velocityY) || (mIsDraggingTop || mIsDraggingBottom);
     }
 
     @Override
@@ -164,6 +164,7 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
 
     @Override
     public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
+        super.onNestedPreScroll(target, dx, dy, consumed);
         if (mIsDraggingTop) {
             int topTranslationY = mCalculateHelper.getTopTranslationY(mIsRefreshing);
             int newY = mTranslationY - dy;
@@ -204,11 +205,6 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
     }
 
     @Override
-    public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int nestedScrollAxes) {
-        return true;
-    }
-
-    @Override
     public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 
@@ -217,7 +213,8 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         boolean isUp = dyUnconsumed < 0 && !canTargetScrollUp();
         boolean isDown = dyUnconsumed > 0 && !canTargetScrollDown() && canTargetScrollUp() && !mIsRefreshing;
 
-        if (isUp && mIsEnableRefresh) {
+        if (isUp && mIsEnableRefresh &&
+                ((mTopStyle == REFRESH_STYPE_INTRUSIVE && !mIsRefreshing) || mTopStyle == REFRESH_STYPE_NONE_INTRUSIVE)) {
             mIsDraggingTop = true;
             return;
         }
@@ -602,5 +599,15 @@ public class CommonSwipeRefreshLayout extends NestScrollViewGroup implements Nes
         public void run() {
             CommonSwipeRefreshLayout.this.startLoadMore();
         }
+    }
+
+    public boolean canChildScrollVertically(int direction) {
+        if (mTarget instanceof RecyclerView) {
+            return mTarget.canScrollVertically(direction);
+        }
+        if (mTarget instanceof IRefreshListView) {
+            return mTarget.canScrollVertically(direction);
+        }
+        return false;
     }
 }
